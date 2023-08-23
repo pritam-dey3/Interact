@@ -5,7 +5,7 @@ from typing import TYPE_CHECKING
 from warnings import warn
 
 if TYPE_CHECKING:
-    from src.base import Message, Handler
+    from interact.base import Message, Handler
 
 string_formatter = string.Formatter()
 

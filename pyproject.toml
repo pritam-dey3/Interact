@@ -2,7 +2,8 @@
 name = "interact"
 version = "0.1.0"
 description = "Interact with LLMs"
-authors = ["Pritam Det <pritam.pritamdey.984@gmail.com>"]
+authors = ["Pritam Dey <pritam.pritamdey.984@gmail.com>"]
+readme = "README.md"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]

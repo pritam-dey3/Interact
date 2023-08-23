@@ -3,7 +3,7 @@ from __future__ import annotations
 from abc import ABC, abstractmethod
 from collections.abc import Mapping, MutableMapping, Sequence
 from typing import Any, Callable, Self
-from utils import check_msg_is_formatted, get_format_args
+from interact.utils import check_msg_is_formatted, get_format_args
 from typing import overload
 
 

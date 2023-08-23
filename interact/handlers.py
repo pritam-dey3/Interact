@@ -1,4 +1,4 @@
-from src.base import Handler, Message
+from interact.base import Handler, Message
 from typing import Callable
 import openai
 
