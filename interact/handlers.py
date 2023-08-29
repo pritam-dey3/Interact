@@ -5,7 +5,7 @@ import openai
 
 class UserInput(Handler):
     def __init__(self, input_func: Callable[..., str] = None):
-        self.role = "user"
+        self.role = "User"
         if input_func is not None:
             self.input = input_func
         else:
@@ -19,7 +19,7 @@ class UserInput(Handler):
 
 
 class OpenAiLLM(Handler):
-    role = "assistant"
+    role = "Assistant"
 
     def process(self, msg: Message) -> Message:
         res = openai.ChatCompletion.create(
@@ -30,9 +30,7 @@ class OpenAiLLM(Handler):
         )
 
         reply = ". ".join(c["message"]["content"] for c in res["choices"])
-        return Message(
-            {"primary": reply, "openai_response": dict(res)}
-        )
+        return Message({"primary": reply, "openai_response": dict(res)})
 
 
 class AssignRole(Handler):
@@ -44,6 +42,8 @@ class AssignRole(Handler):
 
 
 class DecideIf(Handler):
+    role = "Decision"
+
     def __init__(
         self, condition: Callable[[Message], bool], *, then: Handler, otherwise: Handler
     ) -> None:

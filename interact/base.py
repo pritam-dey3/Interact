@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from collections.abc import Mapping, MutableMapping, Sequence
+from collections.abc import Mapping, MutableMapping
 from typing import Any, Callable, Self
 from interact.utils import check_msg_is_formatted, get_format_args
 from typing import overload
@@ -147,16 +147,3 @@ class HandlerSequence(Handler):
             # assign the same role as the last handler
             self.role = self._handlers[-1].role
         return msg
-
-
-class History(Sequence):
-    """Stores all the history between different Entities"""
-
-    def __init__(self) -> None:
-        self.messages: list[Message]
-
-    def __getitem__(self, index):
-        return self.messages[index]
-
-    def append(self, msg: Message):
-        self.messages.append(msg)
