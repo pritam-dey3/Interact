@@ -1,149 +1,109 @@
 from __future__ import annotations
 
+import logging
 from abc import ABC, abstractmethod
-from collections.abc import Mapping, MutableMapping
-from typing import Any, Callable, Self
-from interact.utils import check_msg_is_formatted, get_format_args
-from typing import overload
+from copy import copy
+from typing import Any, Self
+
+from interact.exceptions import CascadeError, HandlerError, UnsupportedCascade
+from interact.types import CascadeVars
 
 
-MessageInfo = MutableMapping[str, Any]
-
-
-class Message(MutableMapping):
-    """
-    Abstract base class for the medium of communication between entities.
-    """
-
-    def __init__(
-        self,
-        info: str | Mapping[str, Any],
-        sender: str = None,
-        history: list[Message] = None,
-    ) -> None:
-        if isinstance(info, str):
-            self._info = {"primary": info}
-        elif isinstance(info, Mapping):
-            if "primary" not in info.keys():
-                raise KeyError(
-                    f"Message info must contain `primary` key. Recieved {info=}"
-                )
-            self._info = dict(info)
-        else:
-            raise ValueError(
-                "Message must be initiated with either a string or a Mapping."
-                f" Recieved {info=}"
-            )
-
+class Message:
+    def __init__(self, primary: str, sender: str, **kwargs) -> None:
+        self.primary = primary
         self.sender = sender
-        self.history = history
+        self.info: dict[str, Any] = kwargs
 
     def __getitem__(self, key):
-        return self._info[key]
-
-    def __setitem__(self, key: str, val: Any):
-        self._info[key] = val
-
-    def __delitem__(self, key):
-        del self._info[key]
-
-    def __iter__(self):
-        return iter(self._info)
-
-    def __len__(self) -> int:
-        return len(self._info)
-
-    def format(self, **kwargs) -> Self:
-        if ("call" in kwargs) and isinstance(kwargs["call"], Callable):  # type: ignore
-            self._info = kwargs["call"](self._info)
-        else:
-            primary = self._info["primary"]
-            format_args = get_format_args(primary)
-            assert all([key in format_args for key in kwargs]), (
-                f"{self=} requires the following formatting"
-                f" arguments\n{format_args}\nbut received {kwargs}"
-            )
-            self._info["primary"] = primary.format(**kwargs)
-        return self
+        return self.info[key]
 
     def __repr__(self):
-        return f"{type(self)}(info={self._info}, sender={self.sender})"
+        return f"{self.sender}: {self.primary}"
+
+    def __str__(self) -> str:
+        return self.primary
+
+
+class Cascade:
+    def __init__(self, handlers: list[Handler], vars: CascadeVars = {}) -> None:
+        self.handlers = handlers
+        self.vars = vars
+        self.last_msg: Message = None
+        self.history: list[Message] = []
+        self.step: int = None  # step counter during execution
+
+    async def start(self, msg: str | Message = "", vars: dict[str, Any] = {}) -> Self:
+        self.vars.update(vars)
+        if not isinstance(msg, Message):
+            msg = Message(msg, sender="Cascade-Start")
+        self.last_msg = msg
+        self.history.append(self.last_msg)
+
+        for self.step, handler in enumerate(self.handlers):
+            msg = await handler.get_next_message(self.last_msg, self)
+            self.history.append(msg)
+            self.last_msg = msg
+        return self
+
+    def find_recent(self, role) -> Message:
+        target: Message = None
+        for msg in reversed(self.history):
+            if msg.sender == role:
+                target = msg
+                break
+        else:
+            raise CascadeError(
+                f"No such role {role} found prior to {self.handlers[self.step]} in"
+                " Cascade handlers"
+            )
+
+        return target
+
+    def __rshift__(self, other):
+        if isinstance(other, Handler):
+            self.handlers.append(other)
+        elif isinstance(other, Cascade):
+            self.vars.update(other.vars)
+            self.handlers.extend(other.handlers)
+        else:
+            raise UnsupportedCascade(self, other)
+        return self
+
+    def __rrshift__(self, other) -> Cascade:
+        if isinstance(other, Handler):
+            self.handlers.insert(0, other)
+        else:
+            raise UnsupportedCascade(other, self)
+        return self
 
 
 class Handler(ABC):
-    """
-    Abstract base class for any system that can interact and share messages.
-    """
-
     role: str
 
     @abstractmethod
-    def process(self, msg: Message) -> Message:
-        """
-        Send a message to the entity.
+    async def process(self, msg: Message, csd: Cascade) -> str | Message:
+        raise NotImplementedError
 
-        Args:
-            message (Message): The message to be sent.
-        """
-        pass
-
-    @overload
-    def __rrshift__(self, msg: Message) -> Message:
-        ...
-
-    @overload
-    def __rrshift__(self, handler: Handler) -> HandlerSequence:
-        ...
-
-    def __rrshift__(self, entity):
-        if isinstance(entity, Message):
-            if not isinstance(self, HandlerSequence):
-                check_msg_is_formatted(entity, handler=self)
-
-            history = entity.history or []
-
-            msg = self.process(entity)
-            msg.sender = self.role
-
-            if not isinstance(self, HandlerSequence):
-                history = history + [msg]
-                msg.history = history
-            return msg
-
-        elif isinstance(entity, Handler):
-            if isinstance(entity, HandlerSequence):
-                entity.add_handler(self)
-                return entity
-            else:
-                handler_seq = HandlerSequence()
-                handler_seq.add_handler(entity)
-                handler_seq.add_handler(self)
-                return handler_seq
-
-        raise RuntimeError(
-            f"Expected entity of type `Handler` but recieved {entity} (type:"
-            f" {type(entity)})"
-        )
-
-
-class HandlerSequence(Handler):
-    def __init__(self) -> None:
-        self._handlers: list[Handler] = []
-        self.role = None
-
-    def add_handler(self, handler: Handler) -> None:
-        if isinstance(handler, Handler):
-            self._handlers.append(handler)
+    async def get_next_message(self, msg: Message, csd: Cascade) -> Message:
+        _next_msg = await self.process(msg, csd)
+        if isinstance(_next_msg, Message):
+            next_msg = copy(_next_msg)
+            next_msg.sender = self.role
+        elif isinstance(_next_msg, str):
+            next_msg = Message(_next_msg, sender=self.role)
         else:
-            raise ValueError("HandlerSequence can only contain instances of Handler")
+            raise HandlerError(
+                f"Output of process should be either str or Message. But got {msg} in"
+                f" {self.__class__}"
+            )
+        logging.debug(repr(next_msg))
+        return next_msg
 
-    def process(self, msg: Message) -> Message:
-        if len(self._handlers) == 0:
-            raise RuntimeError(f"Empty handlers found in `HandlerSequence` {self}")
-        for handler in self._handlers:
-            msg = msg >> handler
-
-        if not self.role:
-            # assign the same role as the last handler
-            self.role = self._handlers[-1].role
-        return msg
+    def __rshift__(self, other) -> Cascade:
+        if isinstance(other, Handler):
+            return Cascade([self, other])
+        elif isinstance(other, Cascade):
+            return other.__rrshift__(self)
+        else:
+            raise UnsupportedCascade(self, other)

@@ -1,63 +1,32 @@
-from interact.base import Handler, Message
-from typing import Callable
 import openai
 
-
-class UserInput(Handler):
-    def __init__(self, input_func: Callable[..., str] = None):
-        self.role = "User"
-        if input_func is not None:
-            self.input = input_func
-        else:
-            self.input = input
-
-    def process(self, msg: Message) -> Message:
-        user_query = self.input()
-        msg = msg.format(user_query=user_query)
-        msg["user_query"] = user_query
-        return msg
+from interact.base import Cascade, Handler, Message
 
 
 class OpenAiLLM(Handler):
     role = "Assistant"
 
-    def process(self, msg: Message) -> Message:
+    def __init__(self, role: str = None) -> None:
+        if role is not None:
+            self.role = role
+
+    async def process(self, msg: Message, csd: Cascade) -> Message:
+        api_key = csd.vars.get("api_key", None)
         res = openai.ChatCompletion.create(
             model="gpt-3.5-turbo",
+            api_key=api_key,
             messages=[
-                {"role": "user", "content": msg["primary"]},
+                {"role": "user", "content": str(msg)},
             ],
         )
 
         reply = ". ".join(c["message"]["content"] for c in res["choices"])
-        return Message({"primary": reply, "openai_response": dict(res)})
+        return Message(primary=reply, sender=self.role, openai_response=dict(res))
 
 
 class AssignRole(Handler):
     def __init__(self, role: str) -> None:
         self.role = role
 
-    def process(self, msg: Message) -> Message:
-        return msg
-
-
-class DecideIf(Handler):
-    role = "Decision"
-
-    def __init__(
-        self, condition: Callable[[Message], bool], *, then: Handler, otherwise: Handler
-    ) -> None:
-        self.condition = condition
-        self.then = then
-        self.otherwise = otherwise
-
-    def process(self, msg: Message) -> Message:
-        if self.condition(msg):
-            handler = self.then
-        else:
-            handler = self.otherwise
-
-        msg = msg >> handler
-        self.role = handler.role
-
+    async def process(self, msg: Message, csd: Cascade) -> Message:
         return msg
