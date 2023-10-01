@@ -1,0 +1,7 @@
+Base Classes
+=============
+
+.. automodule:: interact.base
+   :no-members:
+   :undoc-members:
+   :show-inheritance:
