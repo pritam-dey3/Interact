@@ -15,6 +15,12 @@ def get_format_args(s: str):
 
 
 def check_msg_is_formatted(msg: Message, handler: Handler):
+    """Check if the message is formatted. If not, then warn the user.
+
+    Args:
+        msg (Message): message to check
+        handler (Handler): handler that the message was passed to
+    """
     args = get_format_args(msg["primary"])
     if len(args) > 0:
         warn(
@@ -24,6 +30,19 @@ def check_msg_is_formatted(msg: Message, handler: Handler):
 
 
 def find_last(key: str, history: list[Message]):
+    """Find the last message in the history that has the given key in Message.info
+    dictionary..
+
+    Args:
+        key (str): key to search for
+        history (list[Message]): history of the current Cascade
+
+    Raises:
+        RuntimeError: if the key is not found in the history
+
+    Returns:
+        Any: value of the key in the last message in the history that has the key
+    """
     value = None
     for msg in reversed(history):
         if key in msg:

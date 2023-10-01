@@ -1,4 +1,6 @@
 __pycache__
 
-
-explorations
+dist/
+explorations/
+.mypy_cache/
+.env
