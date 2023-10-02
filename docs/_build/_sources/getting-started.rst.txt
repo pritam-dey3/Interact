@@ -3,11 +3,6 @@
 Getting Started
 ===============
 
-Interact
---------
-
-A simple python library to interact and build applications with Large Language Models.
-
 Core Concept
 ------------
 
@@ -17,12 +12,7 @@ Core Concept
 - ``Message`` s are passed through ``Handler`` s that can modify (transform, format, etc.) the ``Message``.
 - ``Handler`` s are chained together to form a ``Cascade``. ``Cascade`` s hold a sequence of ``Handler`` s that are executed in order.
 
-Installation
-------------
 
-.. code-block:: bash
-
-   pip install git+https://github.com/pritam-dey3/interact
 
 Example Usage
 -------------
@@ -94,13 +84,4 @@ We chain the ``Handler`` s using the ``>>`` operator to form a ``Cascade``. Then
     )
     print(asyncio.run(name_and_tagline_generator.start("socks")).last_msg)
     # The Sock Spot: Step into Comfort
-
-Why Interact?
--------------
-
-Applications with Large Language Models can get complex very quickly. You need more customizability and control over the prompts and their execution to satisfactorily build an application.
-
-``Interact`` was created with simplicity and scalability in mind. The core concepts of ``Message`` s, ``Handler`` s, and ``Cascade`` s are simple to understand and give *You* the power to build complex applications with ease.
-
-More popular alternatives like ``langchain`` get frustrating to use when you want to customize either the process or the prompts according to your needs. ``Interact`` gives you control while maintaining a very simple and intuitive API.
 
