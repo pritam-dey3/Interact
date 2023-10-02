@@ -18,7 +18,12 @@ author = "Pritam Dey"
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
 
-extensions = ["sphinx.ext.autodoc", "sphinx.ext.napoleon", "sphinx_autobuild"]
+extensions = [
+    "sphinx.ext.autodoc",
+    "sphinx.ext.napoleon",
+    "sphinx_autobuild",
+    "sphinx.ext.githubpages",
+]
 autodoc_typehints = "description"
 
 templates_path = ["_templates"]
