@@ -1,5 +1,5 @@
 Handler Classes
-=============
+===============
 
 .. automodule:: interact.handlers
    :members:
