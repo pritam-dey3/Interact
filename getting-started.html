@@ -45,16 +45,13 @@
               <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul class="current">
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Getting Started</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#interact">Interact</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#core-concept">Core Concept</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#installation">Installation</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#example-usage">Example Usage</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#importing-neccessary-modules">Importing neccessary modules</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#define-handlers">Define handlers</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#define-the-cascade">Define the Cascade</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="#why-interact">Why Interact?</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="base.html">Base Classes</a></li>
@@ -77,7 +74,7 @@
       <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
       <li class="breadcrumb-item active">Getting Started</li>
       <li class="wy-breadcrumbs-aside">
-            <a href="_sources/introduction.rst.txt" rel="nofollow"> View page source</a>
+            <a href="_sources/getting-started.rst.txt" rel="nofollow"> View page source</a>
       </li>
   </ul>
   <hr/>
@@ -87,10 +84,6 @@
              
   <section id="getting-started">
 <h1>Getting Started<a class="headerlink" href="#getting-started" title="Link to this heading"></a></h1>
-<section id="interact">
-<h2>Interact<a class="headerlink" href="#interact" title="Link to this heading"></a></h2>
-<p>A simple python library to interact and build applications with Large Language Models.</p>
-</section>
 <section id="core-concept">
 <h2>Core Concept<a class="headerlink" href="#core-concept" title="Link to this heading"></a></h2>
 <p><code class="docutils literal notranslate"><span class="pre">Interact</span></code> has three main components / assumptions:</p>
@@ -99,12 +92,6 @@
 <li><p><code class="docutils literal notranslate"><span class="pre">Message</span></code> s are passed through <code class="docutils literal notranslate"><span class="pre">Handler</span></code> s that can modify (transform, format, etc.) the <code class="docutils literal notranslate"><span class="pre">Message</span></code>.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">Handler</span></code> s are chained together to form a <code class="docutils literal notranslate"><span class="pre">Cascade</span></code>. <code class="docutils literal notranslate"><span class="pre">Cascade</span></code> s hold a sequence of <code class="docutils literal notranslate"><span class="pre">Handler</span></code> s that are executed in order.</p></li>
 </ul>
-</section>
-<section id="installation">
-<h2>Installation<a class="headerlink" href="#installation" title="Link to this heading"></a></h2>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip<span class="w"> </span>install<span class="w"> </span>git+https://github.com/pritam-dey3/interact
-</pre></div>
-</div>
 </section>
 <section id="example-usage">
 <h2>Example Usage<a class="headerlink" href="#example-usage" title="Link to this heading"></a></h2>
@@ -173,12 +160,6 @@
 </pre></div>
 </div>
 </section>
-</section>
-<section id="why-interact">
-<h2>Why Interact?<a class="headerlink" href="#why-interact" title="Link to this heading"></a></h2>
-<p>Applications with Large Language Models can get complex very quickly. You need more customizability and control over the prompts and their execution to satisfactorily build an application.</p>
-<p><code class="docutils literal notranslate"><span class="pre">Interact</span></code> was created with simplicity and scalability in mind. The core concepts of <code class="docutils literal notranslate"><span class="pre">Message</span></code> s, <code class="docutils literal notranslate"><span class="pre">Handler</span></code> s, and <code class="docutils literal notranslate"><span class="pre">Cascade</span></code> s are simple to understand and give <em>You</em> the power to build complex applications with ease.</p>
-<p>More popular alternatives like <code class="docutils literal notranslate"><span class="pre">langchain</span></code> get frustrating to use when you want to customize either the process or the prompts according to your needs. <code class="docutils literal notranslate"><span class="pre">Interact</span></code> gives you control while maintaining a very simple and intuitive API.</p>
 </section>
 </section>
 
