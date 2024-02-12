@@ -1,17 +1,16 @@
-import openai
+from openai import AsyncOpenAI
 
 from interact.base import Cascade, Handler, Message
+from interact.exceptions import CascadeError
 
 
 class OpenAiLLM(Handler):
     """Handler for generating a response using OpenAI's Language Model."""
 
-    role = "Assistant"
-
-    def __init__(self, role: str = None, model: str = "gpt-3.5-turbo") -> None:
-        if role is not None:
-            self.role = role
+    def __init__(self, role: str | None = None, model: str = "gpt-3.5-turbo", **openai_kwgs) -> None:
+        self.role = role if role else ""
         self.model = model
+        self.client = AsyncOpenAI(**openai_kwgs)
 
     async def process(self, msg: Message, csd: Cascade) -> Message:
         """Generate a response using the message passed to this handler. If OpenAI api
@@ -25,16 +24,20 @@ class OpenAiLLM(Handler):
         Returns:
             Message: response from OpenAI chatGPT.
         """
+        if not self.role:
+            self.role = msg.sender
+
         api_key = csd.vars.get("api_key", None)
-        res = await openai.ChatCompletion.acreate(
+        if api_key:
+            self.client.api_key = api_key
+        res = await self.client.chat.completions.create(
             model=self.model,
-            api_key=api_key,
             messages=[
                 {"role": "user", "content": str(msg)},
             ],
         )
 
-        reply = ". ".join(c["message"]["content"] for c in res["choices"])
+        reply = ". ".join([str(ch.message.content) for ch in res.choices])
         return Message(primary=reply, sender=self.role, openai_response=dict(res))
 
 
@@ -46,3 +49,39 @@ class AssignRole(Handler):
 
     async def process(self, msg: Message, csd: Cascade) -> Message:
         return msg
+
+
+class RetryCascade(Cascade):
+    """Retry a Cascade until it produces some output before max_attempts.
+
+    Args:
+        sub_csd (Cascade): Cascade to be retried.
+        max_attempts (int, optional): Maximum number of times to retry. Defaults to 3.
+        role (str, optional): Role of the handler. Defaults to "RetryCascade".
+    """  # noqa: E501
+    def __init__(
+        self,
+        sub_csd: Cascade,
+        max_attempts: int = 3,
+        role: str = "RetryCascade",
+    ) -> None:
+        self.sub_csd = sub_csd
+        self.max_attempts = max_attempts
+        self.role = role
+
+    async def process(self, msg: Message, csd: Cascade) -> Message:
+        attempts = 0
+
+        output = None
+        while (attempts < self.max_attempts):
+            try:
+                output = await self.sub_csd.start(msg)
+                break
+            except Exception as e:
+                print(e)
+                attempts += 1
+
+        if output is None:
+            raise CascadeError("RetryCascade failed after max attempts")
+
+        return output.last_msg

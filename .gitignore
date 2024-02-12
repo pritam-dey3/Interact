@@ -1,5 +1,7 @@
 __pycache__
 
+examples/
+
 dist/
 explorations/
 .mypy_cache/

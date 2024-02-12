@@ -6,7 +6,7 @@ from copy import copy
 from typing import Any, Self
 
 from interact.exceptions import CascadeError, HandlerError, UnsupportedCascade
-from interact.types import CascadeVars
+from interact.types import Variables
 
 
 class Message:
@@ -19,7 +19,7 @@ class Message:
         kwargs (dict): additional information about the message
     """
 
-    def __init__(self, primary: str, sender: str, **kwargs) -> None:
+    def __init__(self, primary: str, sender: str = "Handler", **kwargs) -> None:
         self.primary = primary
         self.sender = sender
         self.info: dict[str, Any] = kwargs
@@ -51,9 +51,9 @@ class Cascade:
         last_msg (Message): last message that was processed by the last handler in the cascade
         history (list[Message]): list of all messages that were processed
         step (int): step counter during execution
-    """
+    """  # noqa: E501
 
-    def __init__(self, handlers: list[Handler], vars: CascadeVars = {}) -> None:
+    def __init__(self, handlers: list[Handler], vars: Variables = {}) -> None:
         self.handlers = handlers
         self.vars = vars
         self.last_msg: Message = None
@@ -74,7 +74,7 @@ class Cascade:
 
         Returns:
             Self: Cascade object
-        """
+        """  # noqa: E501
         self.vars.update(vars)
         if not isinstance(msg, Message):
             msg = Message(msg, sender="Cascade-Start")
@@ -82,7 +82,7 @@ class Cascade:
         self.history.append(self.last_msg)
 
         for self.step, handler in enumerate(self.handlers):
-            msg = await handler.get_next_message(self.last_msg, self)
+            msg = await handler._process(self.last_msg, self)
             self.history.append(msg)
             self.last_msg = msg
         return self
@@ -183,7 +183,7 @@ class Handler(ABC):
         """
         raise NotImplementedError
 
-    async def get_next_message(self, msg: Message, csd: Cascade) -> Message:
+    async def _process(self, msg: Message, csd: Cascade) -> Message:
         """Get the next message in the cascade. This method is called by the Cascade
         that is executing this handler. The output of process is converted to a Message,
         and the sender is set to the role of this handler.
