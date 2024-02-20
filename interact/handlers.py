@@ -51,7 +51,7 @@ class AssignRole(Handler):
         return msg
 
 
-class RetryCascade(Cascade):
+class RetryCascade(Handler):
     """Retry a Cascade until it produces some output before max_attempts.
 
     Args:
@@ -63,11 +63,10 @@ class RetryCascade(Cascade):
         self,
         sub_csd: Cascade,
         max_attempts: int = 3,
-        role: str = "RetryCascade",
     ) -> None:
+        self.role = "RetryCascade"
         self.sub_csd = sub_csd
         self.max_attempts = max_attempts
-        self.role = role
 
     async def process(self, msg: Message, csd: Cascade) -> Message:
         attempts = 0

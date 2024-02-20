@@ -56,9 +56,9 @@ class Cascade:
     def __init__(self, handlers: list[Handler], vars: Variables = {}) -> None:
         self.handlers = handlers
         self.vars = vars
-        self.last_msg: Message = None
+        self.last_msg: Message | None = None
         self.history: list[Message] = []
-        self.step: int = None  # step counter during execution
+        self.step: int | None = None  # step counter during execution
 
     async def start(self, msg: str | Message = "", vars: dict[str, Any] = {}) -> Self:
         """Start execution of the cascade. The first message is either a string
@@ -99,12 +99,13 @@ class Cascade:
         Returns:
             Message: most recent message sent by the role
         """
-        target: Message = None
+        target: Message | None = None
         for msg in reversed(self.history):
             if msg.sender == role:
                 target = msg
                 break
         else:
+            assert self.step is not None
             raise CascadeError(
                 f"No such role {role} found prior to {self.handlers[self.step]} in"
                 " Cascade handlers"
