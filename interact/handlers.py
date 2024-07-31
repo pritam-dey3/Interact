@@ -7,9 +7,12 @@ from interact.exceptions import CascadeError
 class OpenAiLLM(Handler):
     """Handler for generating a response using OpenAI's Language Model."""
 
-    def __init__(self, role: str | None = None, model: str = "gpt-3.5-turbo", **openai_kwgs) -> None:
+    def __init__(
+        self, role: str | None = None, model: str = "gpt-4o-mini", **openai_kwgs
+    ) -> None:
         self.role = role if role else ""
         self.model = model
+        openai_kwgs["model"] = model
         self.client = AsyncOpenAI(**openai_kwgs)
 
     async def process(self, msg: Message, csd: Cascade) -> Message:
@@ -30,10 +33,22 @@ class OpenAiLLM(Handler):
         api_key = csd.vars.get("api_key", None)
         if api_key:
             self.client.api_key = api_key
+
+        if msg.image:
+            content = [
+                {"type": "text", "text": str(msg)},
+                {
+                    "type": "image_url",
+                    "image_url": {"url": f"data:image/png;base64,{msg.image}"},
+                },
+            ]
+        else:
+            content = str(msg)
+
         res = await self.client.chat.completions.create(
             model=self.model,
             messages=[
-                {"role": "user", "content": str(msg)},
+                {"role": "user", "content": content},
             ],
         )
 
@@ -59,6 +74,7 @@ class RetryCascade(Handler):
         max_attempts (int, optional): Maximum number of times to retry. Defaults to 3.
         role (str, optional): Role of the handler. Defaults to "RetryCascade".
     """  # noqa: E501
+
     def __init__(
         self,
         sub_csd: Cascade,
@@ -72,7 +88,7 @@ class RetryCascade(Handler):
         attempts = 0
 
         output = None
-        while (attempts < self.max_attempts):
+        while attempts < self.max_attempts:
             try:
                 output = await self.sub_csd.start(msg)
                 break

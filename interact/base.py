@@ -4,6 +4,7 @@ import logging
 from abc import ABC, abstractmethod
 from copy import copy
 from typing import Any, Self
+from utils import image_to_base64
 
 from interact.exceptions import CascadeError, HandlerError, UnsupportedCascade
 from interact.types import Variables
@@ -22,6 +23,11 @@ class Message:
     def __init__(self, primary: str, sender: str = "Handler", **kwargs) -> None:
         self.primary = primary
         self.sender = sender
+        if "image" in kwargs:
+            self.image = image_to_base64(kwargs["image"])
+        else:
+            self.image = None
+
         self.info: dict[str, Any] = kwargs
 
     def __getitem__(self, key):
@@ -56,7 +62,6 @@ class Cascade:
     def __init__(self, handlers: list[Handler], vars: Variables = {}) -> None:
         self.handlers = handlers
         self.vars = vars
-        self.last_msg: Message | None = None
         self.history: list[Message] = []
         self.step: int | None = None  # step counter during execution
 
