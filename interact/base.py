@@ -4,10 +4,10 @@ import logging
 from abc import ABC, abstractmethod
 from copy import copy
 from typing import Any, Self
-from utils import image_to_base64
 
 from interact.exceptions import CascadeError, HandlerError, UnsupportedCascade
 from interact.types import Variables
+from interact.utils import image_to_base64
 
 
 class Message:

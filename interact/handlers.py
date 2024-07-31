@@ -12,7 +12,6 @@ class OpenAiLLM(Handler):
     ) -> None:
         self.role = role if role else ""
         self.model = model
-        openai_kwgs["model"] = model
         self.client = AsyncOpenAI(**openai_kwgs)
 
     async def process(self, msg: Message, csd: Cascade) -> Message:
