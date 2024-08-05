@@ -40,7 +40,7 @@ def main():
         CompanyNamePrompt() >> OpenAiLLM() >> CompanyTaglinePrompt() >> OpenAiLLM()
     )
 
-    print(asyncio.run(name_and_tagline_generator.start("socks")).last_msg)
+    print(asyncio.run(name_and_tagline_generator.run("socks")).last_msg)
     # >> The Sock Spot: Step into Comfort
 
 
