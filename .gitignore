@@ -1,8 +1,10 @@
 __pycache__
 
-examples/
+# examples/
 
 dist/
 explorations/
 .mypy_cache/
 .env
+__pycache__
+.pytest_cache/

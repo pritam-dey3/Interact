@@ -1,14 +1,11 @@
 import asyncio
-import os
 
-import openai
 from dotenv import load_dotenv
 
-from interact.base import Cascade, Handler, Message
+from interact import Cascade, Handler, Message
 from interact.handlers import OpenAiLLM
 
-load_dotenv()
-openai.api_key = os.environ["OPENAI_API_KEY"]
+load_dotenv()  # assuming that the OpenAI api key is set in the environment
 
 
 class CompanyNamePrompt(Handler):
@@ -38,11 +35,14 @@ class CompanyTaglinePrompt(Handler):
         return new_msg
 
 
-name_and_tagline_generator = (
-    CompanyNamePrompt() >> OpenAiLLM() >> CompanyTaglinePrompt() >> OpenAiLLM()
-)
+def main():
+    name_and_tagline_generator = (
+        CompanyNamePrompt() >> OpenAiLLM() >> CompanyTaglinePrompt() >> OpenAiLLM()
+    )
 
-print(asyncio.run(name_and_tagline_generator.start("socks")).last_msg)
-# >> The Sock Spot: Step into Comfort
-print(asyncio.run(name_and_tagline_generator.start("socks")).last_msg)
-# >> The Sock Spot: Step into Comfort
+    print(asyncio.run(name_and_tagline_generator.run("socks")).last_msg)
+    # >> The Sock Spot: Step into Comfort
+
+
+if __name__ == "__main__":
+    main()

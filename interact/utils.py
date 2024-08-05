@@ -10,7 +10,7 @@ import numpy as np
 from PIL import Image
 
 if TYPE_CHECKING:
-    from interact.base import Handler, Message
+    from interact import Handler, Message
 
 string_formatter = string.Formatter()
 
@@ -26,7 +26,7 @@ def check_msg_is_formatted(msg: Message, handler: Handler):
         msg (Message): message to check
         handler (Handler): handler that the message was passed to
     """
-    args = get_format_args(msg["primary"])
+    args = get_format_args(msg.primary)
     if len(args) > 0:
         warn(
             f"{msg=} has unformatted `primary` message but was passed to"
@@ -51,7 +51,7 @@ def find_last(key: str, history: list[Message]):
     value = None
     for msg in reversed(history):
         if key in msg:
-            value = msg[key]
+            value = msg.info[key]
             break
     else:
         raise RuntimeError(f"key {key} could not be found in history.")

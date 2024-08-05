@@ -1,6 +1,6 @@
 from openai import AsyncOpenAI
 
-from interact.base import Cascade, Handler, Message
+from interact import Cascade, Handler, Message
 from interact.exceptions import CascadeError
 
 
@@ -92,7 +92,7 @@ class RetryCascade(Handler):
         output = None
         while attempts < self.max_attempts:
             try:
-                output = await self.sub_csd.start(msg)
+                output = await self.sub_csd.run(msg)
                 break
             except Exception as e:
                 print(e)
