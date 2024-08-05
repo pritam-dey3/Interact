@@ -38,7 +38,10 @@ class OpenAiLLM(Handler):
                 {"type": "text", "text": str(msg)},
                 {
                     "type": "image_url",
-                    "image_url": {"url": f"data:image/png;base64,{msg.image}"},
+                    "image_url": {
+                        "url": f"data:image/png;base64,{msg.image}",
+                        "detail": msg.info.get("image_detail", "auto"),
+                    },
                 },
             ]
         else:
