@@ -131,7 +131,7 @@ class Cascade(UserList[Handler]):
         self.handlers = handlers
         self.vars = vars
         self.history: list[Message] = []
-        self.step: int | None = None  # step counter during execution
+        self.step: int | None = None
         super().__init__(handlers)
 
     async def run(self, msg: str | Message = "", vars: dict[str, Any] = {}) -> Self:

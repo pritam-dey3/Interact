@@ -2,7 +2,7 @@ import asyncio
 
 from dotenv import load_dotenv
 
-from interact.base import Cascade, Handler, Message
+from interact import Cascade, Handler, Message
 from interact.handlers import OpenAiLLM
 
 load_dotenv()  # assuming that the OpenAI api key is set in the environment

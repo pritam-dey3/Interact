@@ -1,4 +1,4 @@
-from interact.base import Message
+from interact import Message
 
 
 def main():
@@ -15,6 +15,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
-
-

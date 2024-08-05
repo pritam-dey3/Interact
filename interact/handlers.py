@@ -1,6 +1,6 @@
 from openai import AsyncOpenAI
 
-from interact.base import Cascade, Handler, Message
+from interact import Cascade, Handler, Message
 from interact.exceptions import CascadeError
 
 

@@ -10,7 +10,7 @@ import numpy as np
 from PIL import Image
 
 if TYPE_CHECKING:
-    from interact.base import Handler, Message
+    from interact import Handler, Message
 
 string_formatter = string.Formatter()
 

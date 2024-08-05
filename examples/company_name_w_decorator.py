@@ -2,7 +2,7 @@ import asyncio
 
 from dotenv import load_dotenv
 
-from interact.base import Cascade, Message, handler
+from interact import Cascade, Message, handler
 from interact.handlers import OpenAiLLM
 
 load_dotenv()
