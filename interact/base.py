@@ -9,8 +9,10 @@ from interact.exceptions import CascadeError, HandlerError, UnsupportedCascade
 from interact.types import Variables
 from interact.utils import image_to_base64
 
+from collections import UserString
 
-class Message:
+
+class Message(UserString):
     """Message object that is passed between handlers in a Cascade. Each message object
     has
 
@@ -29,23 +31,10 @@ class Message:
             self.image = None
 
         self.info: dict[str, Any] = kwargs
-
-    def __getitem__(self, key):
-        """Get additional information about the message.
-
-        Args:
-            key: information key
-
-        Returns:
-            value of the information key
-        """
-        return self.info[key]
+        super().__init__(primary)
 
     def __repr__(self):
         return f"{self.sender}: {self.primary}"
-
-    def __str__(self) -> str:
-        return self.primary
 
 
 class Cascade:
