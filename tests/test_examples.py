@@ -45,4 +45,3 @@ def test_example(example_file: Path):
     with patch("interact.handlers.OpenAiLLM.process", side_effect):
         module = import_module_from_path(example_file)
         module.main()
-        module.main()
