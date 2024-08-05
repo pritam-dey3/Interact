@@ -1,8 +1,9 @@
 import asyncio
 
+from dotenv import load_dotenv
+
 from interact.base import Cascade, Message, handler
 from interact.handlers import OpenAiLLM
-from dotenv import load_dotenv
 
 load_dotenv()
 
@@ -25,8 +26,14 @@ async def company_tagline_prompt(msg: Message, csd: Cascade) -> str:
     )
 
 
-name_and_tagline_generator = (
-    company_name_prompt >> OpenAiLLM() >> company_tagline_prompt >> OpenAiLLM()
-)
+def main():
+    name_and_tagline_generator = (
+        company_name_prompt >> OpenAiLLM() >> company_tagline_prompt >> OpenAiLLM()
+    )
 
-print(asyncio.run(name_and_tagline_generator.start("socks")).last_msg)
+    print(asyncio.run(name_and_tagline_generator.start("socks")).last_msg)
+
+
+if __name__ == "__main__":
+    main()
+    main()
