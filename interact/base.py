@@ -10,6 +10,7 @@ from interact.types import Variables
 from interact.utils import image_to_base64
 
 from collections import UserString
+from typing import Callable, Coroutine
 
 
 class Message(UserString):
@@ -226,3 +227,25 @@ class Handler(ABC):
             return other.__rrshift__(self)
         else:
             raise UnsupportedCascade(self, other)
+
+
+def handler(
+    func: Callable[[Message, Cascade], Coroutine[None, None, str | Message]],
+) -> Handler:
+    """Decorator to convert any async function to a Handler object.
+
+    Args:
+        func: async function that takes a Message and Cascade object as input and
+        returns a str or Message object.
+
+    Returns:
+        type[Handler]: Handler object
+    """
+
+    class HandlerWrapper(Handler):
+        role = func.__name__
+
+        async def process(self, msg: Message, csd: Cascade) -> str | Message:
+            return await func(msg, csd)
+
+    return HandlerWrapper()
