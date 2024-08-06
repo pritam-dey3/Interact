@@ -47,8 +47,13 @@ class OpenAiLLM(Handler):
         else:
             content = str(msg)
 
+        # Add completion_config to the message if not already present
+        completion_config = msg.info.get("completion_config", {})
+        if "model" not in completion_config and self.model:
+            completion_config["model"] = self.model
+
         res = await self.client.chat.completions.create(
-            model=self.model,
+            **completion_config,
             messages=[
                 {"role": "user", "content": content},
             ],
