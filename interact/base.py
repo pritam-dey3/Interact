@@ -128,7 +128,7 @@ class Cascade(UserList[Handler]):
     """  # noqa: E501
 
     def __init__(self, handlers: list[Handler], vars: Variables = {}) -> None:
-        self.handlers = handlers
+        # self.handlers = handlers
         self.vars = vars
         self.history: list[Message] = []
         self.step: int | None = None
@@ -155,7 +155,7 @@ class Cascade(UserList[Handler]):
         self.last_msg = msg
         self.history.append(self.last_msg)
 
-        for self.step, handler in enumerate(self.handlers):
+        for self.step, handler in enumerate(self):
             msg = await handler._process(self.last_msg, self)
             self.history.append(msg)
             self.last_msg = msg
@@ -178,7 +178,7 @@ class Cascade(UserList[Handler]):
             self.append(other)
         elif isinstance(other, Cascade):
             self.vars.update(other.vars)
-            self.extend(other.handlers)
+            self.extend(other)
         else:
             raise UnsupportedCascade(self, other)
         return self
@@ -196,7 +196,7 @@ class Cascade(UserList[Handler]):
             Self: Cascade object
         """
         if isinstance(other, Handler):
-            self.handlers.insert(0, other)
+            self.insert(0, other)
         else:
             raise UnsupportedCascade(other, self)
         return self
