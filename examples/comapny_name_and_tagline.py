@@ -40,9 +40,8 @@ def main():
         CompanyNamePrompt() >> OpenAiLLM() >> CompanyTaglinePrompt() >> OpenAiLLM()
     )
 
-    print(asyncio.run(name_and_tagline_generator.run("socks")).last_msg)
+    print(asyncio.run(name_and_tagline_generator("socks")))
     # >> The Sock Spot: Step into Comfort
-
 
 if __name__ == "__main__":
     main()

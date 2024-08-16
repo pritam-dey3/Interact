@@ -21,12 +21,16 @@ async def reverse(msg: Message, csd: Cascade) -> Message:
 def main():
     cascade = upper_case >> remove_punctuation >> reverse
     msg = Message("You are awesome!")
-    res = asyncio.run(cascade.run(msg))
+    last_msg, history = asyncio.run(cascade.run(msg, return_history=True))
 
-    # `res` behave like a list
-    first_msg = res[0]  # = Message("You are awesome!")
-    last_msg = res.pop()  # similar to res.last_msg
+    first_msg = history[0]  # = Message("You are awesome!")
+
+    # `cascade` behaves like a list of messages
     # find a message with a specific role
-    msg_rm_punc = [msg for msg in res if msg.role == "remove_punctuation"][0]
+    msg_rm_punc = [handler for handler in cascade if handler.role == "remove_punctuation"][0]
+
+    # get last handler
+    last_handler = cascade.pop()
+    assert last_handler.role == "reverse"
 
     print(first_msg, last_msg, msg_rm_punc, sep="\n")

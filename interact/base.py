@@ -4,7 +4,7 @@ import logging
 from abc import ABC, abstractmethod
 from collections import UserList, UserString
 from copy import copy
-from typing import Any, Callable, Coroutine, Self
+from typing import Any, Callable, Coroutine, Self, overload
 
 from interact.exceptions import HandlerError, UnsupportedCascade
 from interact.types import Variables
@@ -134,7 +134,24 @@ class Cascade(UserList[Handler]):
         self.step: int | None = None
         super().__init__(handlers)
 
-    async def run(self, msg: str | Message = "", vars: dict[str, Any] = {}) -> Self:
+    @overload
+    async def run(
+        self, msg: str | Message, vars: dict[str, Any] = {}, return_history=True
+    ) -> tuple[Message, list[Message]]: ...
+    @overload
+    async def run(
+        self,
+        msg: str | Message,
+        vars: dict[str, Any] = {},
+        return_history=False,
+    ) -> Message: ...
+
+    async def run(
+        self,
+        msg: str | Message = "",
+        vars: dict[str, Any] = {},
+        return_history: bool = False,
+    ):
         """Start execution of the cascade. The first message is either a string
         (converted to Message with sender "Cascade-Start) or a Message object.
         Additional variables can be passed to the cascade with the vars argument.
@@ -145,6 +162,7 @@ class Cascade(UserList[Handler]):
         Args:
             msg (str | Message, optional): Starting message for the Cascade. Defaults to "".
             vars (dict[str, Any], optional): Additional variables those will be shared by all handlers. Handlers can update the variables during their processing stage. Defaults to {}.
+            return_history (bool, optional): If True, the history of all messages is returned. Defaults to False.
 
         Returns:
             Self: Cascade object
@@ -159,7 +177,11 @@ class Cascade(UserList[Handler]):
             msg = await handler._process(self.last_msg, self)
             self.history.append(msg)
             self.last_msg = msg
-        return self
+
+        if return_history:
+            return self.last_msg, self.history
+        else:
+            return self.last_msg
 
     def __rshift__(self, other) -> Self:
         """Append a handler to the cascade. If the other object is a Cascade, then
@@ -204,6 +226,7 @@ class Cascade(UserList[Handler]):
     __add__ = __rshift__
     __iadd__ = __rshift__
     __radd__ = __rrshift__
+    __call__ = run
 
 
 def handler(
