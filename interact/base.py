@@ -4,7 +4,6 @@ import logging
 from abc import ABC, abstractmethod
 from collections import UserString
 from collections.abc import Sequence
-from copy import copy
 from typing import Any, Callable, Coroutine, Literal, overload
 
 from interact.exceptions import HandlerError, UnsupportedCascade
@@ -99,12 +98,12 @@ class Handler(ABC):
         Returns:
             Message: transformed message
         """
-        _next_msg = await self.process(msg, csd)
-        if isinstance(_next_msg, Message):
-            next_msg = copy(_next_msg)
+        next_msg = await self.process(msg, csd)
+        if isinstance(next_msg, Message):
+            next_msg = next_msg[:]
             next_msg.sender = self.role
-        elif isinstance(_next_msg, str):
-            next_msg = Message(_next_msg, sender=self.role)
+        elif isinstance(next_msg, str):
+            next_msg = Message(next_msg, sender=self.role)
         else:
             raise HandlerError(
                 f"Output of process should be either str or Message. But got {msg} in"
