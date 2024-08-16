@@ -69,7 +69,7 @@ class Handler(ABC):
     role: str
 
     @abstractmethod
-    async def process(self, msg: Message, csd: Cascade) -> str | Message:
+    async def process(self, msg: Message, csd: HandlerChain) -> str | Message:
         """Process a message and return a new transformed message.
 
         Args:
@@ -84,7 +84,7 @@ class Handler(ABC):
         """
         raise NotImplementedError
 
-    async def _process(self, msg: Message, csd: Cascade) -> Message:
+    async def _process(self, msg: Message, csd: HandlerChain) -> Message:
         """Get the next message in the cascade. This method is called by the Cascade
         that is executing this handler. The output of process is converted to a Message,
         and the sender is set to the role of this handler.
@@ -113,7 +113,7 @@ class Handler(ABC):
         logging.debug(repr(next_msg))
         return next_msg
 
-    def __rshift__(self, other) -> Cascade:
+    def __rshift__(self, other) -> HandlerChain:
         """Create a Cascade object with this handler and the other object. If the other
         object is a Cascade, then this handler is appended to the Cascade.
 
@@ -127,8 +127,8 @@ class Handler(ABC):
             Cascade: Cascade object
         """
         if isinstance(other, Handler):
-            return Cascade(self, other)
-        elif isinstance(other, Cascade):
+            return HandlerChain(self, other)
+        elif isinstance(other, HandlerChain):
             return other.__rrshift__(self)
         else:
             raise UnsupportedCascade(self, other)
@@ -155,7 +155,7 @@ class History(Sequence[Message]):
         return f"History({self.messages})"
 
 
-class Cascade(Sequence[Handler]):
+class HandlerChain(Sequence[Handler]):
     """Cascade is a sequence of handlers that are executed in order.
 
     Parameters:
@@ -176,22 +176,22 @@ class Cascade(Sequence[Handler]):
     async def run(
         self,
         msg: str | Message,
-        vars: dict[str, Any] = {},
+        variables: dict[str, Any] = {},
         return_history: Literal[False] = ...,
     ) -> Message: ...
     @overload
     async def run(
         self,
         msg: str | Message,
-        vars: dict[str, Any] = {},
+        variables: dict[str, Any] = {},
         return_history: Literal[True] = ...,
     ) -> tuple[Message, History]: ...
 
     async def run(
         self,
-        msg: str|Message="",
-        vars: dict[str, Any]={},
-        return_history: bool=False,
+        msg: str | Message = "",
+        variables: dict[str, Any] = {},
+        return_history: bool = False,
     ):
         """Start execution of the cascade. The first message is either a string
         (converted to Message with sender "Cascade-Start) or a Message object.
@@ -208,7 +208,7 @@ class Cascade(Sequence[Handler]):
         Returns:
             Self: Cascade object
         """  # noqa: E501
-        self.variables.update(vars)
+        self.variables.update(variables)
         if not isinstance(msg, Message):
             msg = Message(msg, sender="Input")
         self.last_msg = msg
@@ -224,7 +224,7 @@ class Cascade(Sequence[Handler]):
         else:
             return self.last_msg
 
-    def __rshift__(self, other) -> Cascade:
+    def __rshift__(self, other) -> HandlerChain:
         """Append a handler to the cascade. If the other object is a Cascade, then
         the handlers and variables of the other cascade are appended to this cascade.
 
@@ -238,15 +238,15 @@ class Cascade(Sequence[Handler]):
             Self: Cascade object
         """
         if isinstance(other, Handler):
-            new_csd = Cascade(*self, other)
-        elif isinstance(other, Cascade):
+            new_csd = HandlerChain(*self, other)
+        elif isinstance(other, HandlerChain):
             self.variables.update(other.variables)
-            new_csd = Cascade(*self, *other)
+            new_csd = HandlerChain(*self, *other)
         else:
             raise UnsupportedCascade(self, other)
         return new_csd
 
-    def __rrshift__(self, other) -> Cascade:
+    def __rrshift__(self, other) -> HandlerChain:
         """Prepend a handler to the cascade.
 
         Args:
@@ -259,7 +259,7 @@ class Cascade(Sequence[Handler]):
             Self: Cascade object
         """
         if isinstance(other, Handler):
-            return Cascade(other, *self)
+            return HandlerChain(other, *self)
         else:
             raise UnsupportedCascade(other, self)
 
@@ -273,7 +273,7 @@ class Cascade(Sequence[Handler]):
 
 
 def handler(
-    func: Callable[[Message, Cascade], Coroutine[None, None, str | Message]],
+    func: Callable[[Message, HandlerChain], Coroutine[None, None, str | Message]],
 ) -> Handler:
     """Decorator to convert any async function to a Handler object.
 
@@ -288,7 +288,7 @@ def handler(
     class HandlerWrapper(Handler):
         role = func.__name__
 
-        async def process(self, msg: Message, csd: Cascade) -> str | Message:
+        async def process(self, msg: Message, csd: HandlerChain) -> str | Message:
             return await func(msg, csd)
 
     return HandlerWrapper()

@@ -2,7 +2,7 @@ import asyncio
 
 from dotenv import load_dotenv
 
-from interact import Cascade, Handler, Message
+from interact import Handler, HandlerChain, Message
 from interact.handlers import OpenAiLLM
 
 load_dotenv()  # assuming that the OpenAI api key is set in the environment
@@ -14,7 +14,7 @@ class CompanyNamePrompt(Handler):
         "What would be an appropriate name for a business specializing in {product}?"
     )
 
-    async def process(self, msg: Message, csd: Cascade) -> str:
+    async def process(self, msg: Message, csd: HandlerChain) -> str:
         new_msg = self.prompt.format(product=msg.primary)
         csd.variables["product"] = msg.primary
         return new_msg
@@ -28,7 +28,7 @@ class CompanyTaglinePrompt(Handler):
         " format:\n<company_name>: <tagline>"
     )
 
-    async def process(self, msg: Message, csd: Cascade) -> str:
+    async def process(self, msg: Message, csd: HandlerChain) -> str:
         new_msg = self.prompt.format(
             company_name=msg.primary, product=csd.variables["product"]
         )

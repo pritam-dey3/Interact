@@ -1,20 +1,20 @@
 import asyncio
 
-from interact import Cascade, Message, handler
+from interact import HandlerChain, Message, handler
 
 
 @handler
-async def upper_case(msg: Message, csd: Cascade) -> Message:
+async def upper_case(msg: Message, csd: HandlerChain) -> Message:
     return msg.upper()
 
 
 @handler
-async def remove_punctuation(msg: Message, csd: Cascade) -> str:
+async def remove_punctuation(msg: Message, csd: HandlerChain) -> str:
     return "".join([char for char in str(msg) if char.isalnum()])
 
 
 @handler
-async def reverse(msg: Message, csd: Cascade) -> Message:
+async def reverse(msg: Message, csd: HandlerChain) -> Message:
     return msg[::-1]
 
 
@@ -27,7 +27,9 @@ def main():
 
     # `cascade` is an immutable sequence of handlers
     # find a message with a specific role
-    msg_rm_punc = [handler for handler in cascade if handler.role == "remove_punctuation"][0]
+    msg_rm_punc = [
+        handler for handler in cascade if handler.role == "remove_punctuation"
+    ][0]
 
     # get last handler
     last_handler = cascade[-1]

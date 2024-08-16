@@ -2,14 +2,14 @@ import asyncio
 
 from dotenv import load_dotenv
 
-from interact import Cascade, Message, handler
+from interact import HandlerChain, Message, handler
 from interact.handlers import OpenAiLLM
 
 load_dotenv()
 
 
 @handler
-async def company_name_prompt(msg: Message, csd: Cascade) -> str:
+async def company_name_prompt(msg: Message, csd: HandlerChain) -> str:
     csd.variables["product"] = msg.primary
     return (
         f"What would be an appropriate name for a business specializing in {msg.primary}?"
@@ -18,7 +18,7 @@ async def company_name_prompt(msg: Message, csd: Cascade) -> str:
 
 
 @handler
-async def company_tagline_prompt(msg: Message, csd: Cascade) -> str:
+async def company_tagline_prompt(msg: Message, csd: HandlerChain) -> str:
     return (
         f"What would be an appropriate tagline for a business specializing in {csd.variables['product']}"
         f" and with company name {msg.primary}?\nFormat your output in the following"

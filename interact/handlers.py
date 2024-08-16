@@ -1,6 +1,6 @@
 from openai import AsyncOpenAI
 
-from interact import Cascade, Handler, Message
+from interact import Handler, HandlerChain, Message
 from interact.exceptions import CascadeError
 
 
@@ -14,7 +14,7 @@ class OpenAiLLM(Handler):
         self.model = model
         self.client = AsyncOpenAI(**openai_kwgs)
 
-    async def process(self, msg: Message, csd: Cascade) -> Message:
+    async def process(self, msg: Message, csd: HandlerChain) -> Message:
         """Generate a response using the message passed to this handler. If OpenAI api
         key is not set in the environment, then the api key can be passed as a variable
         in the Cascade.vars dictionary.
@@ -69,7 +69,7 @@ class AssignRole(Handler):
     def __init__(self, role: str) -> None:
         self.role = role
 
-    async def process(self, msg: Message, csd: Cascade) -> Message:
+    async def process(self, msg: Message, csd: HandlerChain) -> Message:
         return msg
 
 
@@ -84,14 +84,14 @@ class RetryCascade(Handler):
 
     def __init__(
         self,
-        sub_csd: Cascade,
+        sub_csd: HandlerChain,
         max_attempts: int = 3,
     ) -> None:
         self.role = "RetryCascade"
         self.sub_csd = sub_csd
         self.max_attempts = max_attempts
 
-    async def process(self, msg: Message, csd: Cascade) -> Message:
+    async def process(self, msg: Message, csd: HandlerChain) -> Message:
         attempts = 0
 
         while attempts < self.max_attempts:
