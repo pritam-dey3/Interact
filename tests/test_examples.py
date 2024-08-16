@@ -15,11 +15,11 @@ def get_example_files():
 def openai_llm_init_side_effect(self, *args, **kwargs):
     self.role = "llm"
 
-async def dummy_openai_llm_process_side_effect(hanlder, msg, csd):
+async def dummy_openai_llm_process_side_effect(hanlder, msg, chain):
     return msg
 
 
-async def company_name_openai_llm_process_side_effect(hanlder, msg, csd):
+async def company_name_openai_llm_process_side_effect(hanlder, msg, chain):
     global llm_call_count
     if llm_call_count == 0:
         llm_call_count += 1

@@ -1,1 +1,1 @@
-from interact.base import Handler, HandlerChain, Message, handler  # noqa: F401
+from interact.base import Handler, HandlerChain, History, Message, handler  # noqa: F401

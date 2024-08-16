@@ -1,7 +1,7 @@
 from openai import AsyncOpenAI
 
 from interact import Handler, HandlerChain, Message
-from interact.exceptions import CascadeError
+from interact.exceptions import HandlerError
 
 
 class OpenAiLLM(Handler):
@@ -14,22 +14,22 @@ class OpenAiLLM(Handler):
         self.model = model
         self.client = AsyncOpenAI(**openai_kwgs)
 
-    async def process(self, msg: Message, csd: HandlerChain) -> Message:
+    async def process(self, msg: Message, chain: HandlerChain) -> Message:
         """Generate a response using the message passed to this handler. If OpenAI api
         key is not set in the environment, then the api key can be passed as a variable
-        in the Cascade.vars dictionary.
+        in the HandlerChain.variables dictionary.
 
         Args:
             msg (Message): user response sent to OpenAI chatGPT.
-            csd (Cascade): Casccade that this handler is a part of.
-
+            chain (HandlerChain): Casccade that this handler is a part of.
+            
         Returns:
             Message: response from OpenAI chatGPT.
         """
         if not self.role:
             self.role = msg.sender
 
-        api_key = csd.variables.get("api_key", None)
+        api_key = chain.variables.get("api_key", None)
         if api_key:
             self.client.api_key = api_key
 
@@ -64,45 +64,45 @@ class OpenAiLLM(Handler):
 
 
 class AssignRole(Handler):
-    """Assign a role to the last message sent to this Handler by the current Cascade."""
+    """Assign a role to the last message sent to this Handler by the current HandlerChain."""
 
     def __init__(self, role: str) -> None:
         self.role = role
 
-    async def process(self, msg: Message, csd: HandlerChain) -> Message:
+    async def process(self, msg: Message, chain: HandlerChain) -> Message:
         return msg
 
 
-class RetryCascade(Handler):
-    """Retry a Cascade until it produces some output before max_attempts.
+class RetryHandlerChain(Handler):
+    """Retry a HandlerChain until it produces some output before max_attempts.
 
     Args:
-        sub_csd (Cascade): Cascade to be retried.
+        sub_chain (HandlerChain): HandlerChain to be retried.
         max_attempts (int, optional): Maximum number of times to retry. Defaults to 3.
-        role (str, optional): Role of the handler. Defaults to "RetryCascade".
+        role (str, optional): Role of the handler. Defaults to "RetryHandlerChain".
     """  # noqa: E501
 
     def __init__(
         self,
-        sub_csd: HandlerChain,
+        sub_chain: HandlerChain,
         max_attempts: int = 3,
     ) -> None:
-        self.role = "RetryCascade"
-        self.sub_csd = sub_csd
+        self.role = "RetryHandlerChain"
+        self.sub_chain = sub_chain
         self.max_attempts = max_attempts
 
-    async def process(self, msg: Message, csd: HandlerChain) -> Message:
+    async def process(self, msg: Message, chain: HandlerChain) -> Message:
         attempts = 0
 
         while attempts < self.max_attempts:
             try:
-                output = await self.sub_csd.run(msg)
+                output = await self.sub_chain.run(msg)
                 break
             except Exception as e:
                 print(e)
                 attempts += 1
 
         if attempts == self.max_attempts:
-            raise CascadeError("RetryCascade failed after max attempts")
+            raise HandlerError("RetryHandlerChain failed after max attempts")
 
         return output

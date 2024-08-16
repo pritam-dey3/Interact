@@ -14,9 +14,9 @@ class CompanyNamePrompt(Handler):
         "What would be an appropriate name for a business specializing in {product}?"
     )
 
-    async def process(self, msg: Message, csd: HandlerChain) -> str:
+    async def process(self, msg: Message, chain: HandlerChain) -> str:
         new_msg = self.prompt.format(product=msg.primary)
-        csd.variables["product"] = msg.primary
+        chain.variables["product"] = msg.primary
         return new_msg
 
 
@@ -28,9 +28,9 @@ class CompanyTaglinePrompt(Handler):
         " format:\n<company_name>: <tagline>"
     )
 
-    async def process(self, msg: Message, csd: HandlerChain) -> str:
+    async def process(self, msg: Message, chain: HandlerChain) -> str:
         new_msg = self.prompt.format(
-            company_name=msg.primary, product=csd.variables["product"]
+            company_name=msg.primary, product=chain.variables["product"]
         )
         return new_msg
 

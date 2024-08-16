@@ -9,8 +9,8 @@ load_dotenv()
 
 
 @handler
-async def company_name_prompt(msg: Message, csd: HandlerChain) -> str:
-    csd.variables["product"] = msg.primary
+async def company_name_prompt(msg: Message, chain: HandlerChain) -> str:
+    chain.variables["product"] = msg.primary
     return (
         f"What would be an appropriate name for a business specializing in {msg.primary}?"
         "Only mention the company name and nothing else."
@@ -18,9 +18,9 @@ async def company_name_prompt(msg: Message, csd: HandlerChain) -> str:
 
 
 @handler
-async def company_tagline_prompt(msg: Message, csd: HandlerChain) -> str:
+async def company_tagline_prompt(msg: Message, chain: HandlerChain) -> str:
     return (
-        f"What would be an appropriate tagline for a business specializing in {csd.variables['product']}"
+        f"What would be an appropriate tagline for a business specializing in {chain.variables['product']}"
         f" and with company name {msg.primary}?\nFormat your output in the following"
         f" format:\n{msg.primary}: <tagline>"
     )

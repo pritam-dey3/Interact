@@ -10,7 +10,7 @@ import numpy as np
 from PIL import Image
 
 if TYPE_CHECKING:
-    from interact import Handler, Message
+    from interact import Handler, Message, History
 
 string_formatter = string.Formatter()
 
@@ -34,13 +34,13 @@ def check_msg_is_formatted(msg: Message, handler: Handler):
         )
 
 
-def find_last(key: str, history: list[Message]):
+def find_last(key: str, history: History):
     """Find the last message in the history that has the given key in Message.info
     dictionary..
 
     Args:
         key (str): key to search for
-        history (list[Message]): history of the current Cascade
+        history (History): history of the current HandlerChain
 
     Raises:
         RuntimeError: if the key is not found in the history
