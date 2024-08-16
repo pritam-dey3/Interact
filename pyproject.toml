@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "interact"
-version = "0.4.1"
+version = "0.5.0"
 description = "Interact with LLMs"
 authors = ["Pritam Dey <pritam.pritamdey.984@gmail.com>"]
 readme = "README.md"

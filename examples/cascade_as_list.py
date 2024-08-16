@@ -25,12 +25,12 @@ def main():
 
     first_msg = history[0]  # = Message("You are awesome!")
 
-    # `cascade` behaves like a list of messages
+    # `cascade` is an immutable sequence of handlers
     # find a message with a specific role
     msg_rm_punc = [handler for handler in cascade if handler.role == "remove_punctuation"][0]
 
     # get last handler
-    last_handler = cascade.pop()
+    last_handler = cascade[-1]
     assert last_handler.role == "reverse"
 
     print(first_msg, last_msg, msg_rm_punc, sep="\n")

@@ -16,7 +16,7 @@ class CompanyNamePrompt(Handler):
 
     async def process(self, msg: Message, csd: Cascade) -> str:
         new_msg = self.prompt.format(product=msg.primary)
-        csd.vars["product"] = msg.primary
+        csd.variables["product"] = msg.primary
         return new_msg
 
 
@@ -30,7 +30,7 @@ class CompanyTaglinePrompt(Handler):
 
     async def process(self, msg: Message, csd: Cascade) -> str:
         new_msg = self.prompt.format(
-            company_name=msg.primary, product=csd.vars["product"]
+            company_name=msg.primary, product=csd.variables["product"]
         )
         return new_msg
 
@@ -42,6 +42,7 @@ def main():
 
     print(asyncio.run(name_and_tagline_generator("socks")))
     # >> The Sock Spot: Step into Comfort
+
 
 if __name__ == "__main__":
     main()

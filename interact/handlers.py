@@ -29,7 +29,7 @@ class OpenAiLLM(Handler):
         if not self.role:
             self.role = msg.sender
 
-        api_key = csd.vars.get("api_key", None)
+        api_key = csd.variables.get("api_key", None)
         if api_key:
             self.client.api_key = api_key
 
@@ -94,7 +94,6 @@ class RetryCascade(Handler):
     async def process(self, msg: Message, csd: Cascade) -> Message:
         attempts = 0
 
-        output = None
         while attempts < self.max_attempts:
             try:
                 output = await self.sub_csd.run(msg)
@@ -103,7 +102,7 @@ class RetryCascade(Handler):
                 print(e)
                 attempts += 1
 
-        if output is None:
+        if attempts == self.max_attempts:
             raise CascadeError("RetryCascade failed after max attempts")
 
-        return output.last_msg
+        return output

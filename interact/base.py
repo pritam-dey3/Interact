@@ -2,9 +2,10 @@ from __future__ import annotations
 
 import logging
 from abc import ABC, abstractmethod
-from collections import UserList, UserString
+from collections import UserString
+from collections.abc import Sequence
 from copy import copy
-from typing import Any, Callable, Coroutine, Self, overload
+from typing import Any, Callable, Coroutine, Literal, overload
 
 from interact.exceptions import HandlerError, UnsupportedCascade
 from interact.types import Variables
@@ -21,7 +22,7 @@ class Message(UserString):
         kwargs (dict): additional information about the message
     """
 
-    def __init__(self, primary: str, sender: str = "Handler", **kwargs) -> None:
+    def __init__(self, primary: str, sender: str = "Unknown", **kwargs) -> None:
         self.primary = primary
         self.sender = sender
         if "image" in kwargs:
@@ -32,7 +33,24 @@ class Message(UserString):
         self.info: dict[str, Any] = kwargs
         super().__init__(primary)
 
+    def __add__(self, other: object) -> Message:
+        if not (isinstance(other, str) or isinstance(other, UserString)):
+            raise TypeError(
+                f"Can only concatenate str or UserString (Message) to Message. Got {type(other)}"
+            )
+        return super().__add__(other)
+
+    def __radd__(self, other: object) -> Message:
+        if not (isinstance(other, str) or isinstance(other, UserString)):
+            raise TypeError(
+                f"Can only concatenate str or UserString (Message) to Message. Got {type(other)}"
+            )
+        return super().__radd__(other)
+
     def __repr__(self):
+        return f"Message({self.primary}, sender='{self.sender}', info={self.info})"
+
+    def __str__(self) -> str:
         return f"{self.sender}: {self.primary}"
 
 
@@ -109,14 +127,35 @@ class Handler(ABC):
             Cascade: Cascade object
         """
         if isinstance(other, Handler):
-            return Cascade([self, other])
+            return Cascade(self, other)
         elif isinstance(other, Cascade):
             return other.__rrshift__(self)
         else:
             raise UnsupportedCascade(self, other)
 
 
-class Cascade(UserList[Handler]):
+class History(Sequence[Message]):
+    """History is a sequence of messages that were processed by a Cascade. It is a
+    read-only list of messages.
+
+    Args:
+        messages (list[Message]): list of messages in the history
+    """
+
+    def __init__(self, *messages: Message) -> None:
+        self.messages = tuple(messages)
+
+    def __getitem__(self, index: int) -> Message:
+        return self.messages[index]
+
+    def __len__(self) -> int:
+        return len(self.messages)
+
+    def __repr__(self) -> str:
+        return f"History({self.messages})"
+
+
+class Cascade(Sequence[Handler]):
     """Cascade is a sequence of handlers that are executed in order.
 
     Parameters:
@@ -127,30 +166,32 @@ class Cascade(UserList[Handler]):
         step (int): step counter during execution
     """  # noqa: E501
 
-    def __init__(self, handlers: list[Handler], vars: Variables = {}) -> None:
-        # self.handlers = handlers
-        self.vars = vars
-        self.history: list[Message] = []
+    def __init__(self, *handlers: Handler, variables: Variables = {}) -> None:
+        self.handlers = handlers
+        self.variables = variables
+        self.history: History = History()
         self.step: int | None = None
-        super().__init__(handlers)
 
-    @overload
-    async def run(
-        self, msg: str | Message, vars: dict[str, Any] = {}, return_history=True
-    ) -> tuple[Message, list[Message]]: ...
     @overload
     async def run(
         self,
         msg: str | Message,
         vars: dict[str, Any] = {},
-        return_history=False,
+        return_history: Literal[False] = ...,
     ) -> Message: ...
+    @overload
+    async def run(
+        self,
+        msg: str | Message,
+        vars: dict[str, Any] = {},
+        return_history: Literal[True] = ...,
+    ) -> tuple[Message, History]: ...
 
     async def run(
         self,
-        msg: str | Message = "",
-        vars: dict[str, Any] = {},
-        return_history: bool = False,
+        msg: str|Message="",
+        vars: dict[str, Any]={},
+        return_history: bool=False,
     ):
         """Start execution of the cascade. The first message is either a string
         (converted to Message with sender "Cascade-Start) or a Message object.
@@ -167,15 +208,15 @@ class Cascade(UserList[Handler]):
         Returns:
             Self: Cascade object
         """  # noqa: E501
-        self.vars.update(vars)
+        self.variables.update(vars)
         if not isinstance(msg, Message):
             msg = Message(msg, sender="Input")
         self.last_msg = msg
-        self.history.append(self.last_msg)
+        self.history = History(*self.history, msg)
 
         for self.step, handler in enumerate(self):
             msg = await handler._process(self.last_msg, self)
-            self.history.append(msg)
+            self.history = History(*self.history, msg)
             self.last_msg = msg
 
         if return_history:
@@ -183,7 +224,7 @@ class Cascade(UserList[Handler]):
         else:
             return self.last_msg
 
-    def __rshift__(self, other) -> Self:
+    def __rshift__(self, other) -> Cascade:
         """Append a handler to the cascade. If the other object is a Cascade, then
         the handlers and variables of the other cascade are appended to this cascade.
 
@@ -197,15 +238,15 @@ class Cascade(UserList[Handler]):
             Self: Cascade object
         """
         if isinstance(other, Handler):
-            self.append(other)
+            new_csd = Cascade(*self, other)
         elif isinstance(other, Cascade):
-            self.vars.update(other.vars)
-            self.extend(other)
+            self.variables.update(other.variables)
+            new_csd = Cascade(*self, *other)
         else:
             raise UnsupportedCascade(self, other)
-        return self
+        return new_csd
 
-    def __rrshift__(self, other) -> Self:
+    def __rrshift__(self, other) -> Cascade:
         """Prepend a handler to the cascade.
 
         Args:
@@ -218,14 +259,16 @@ class Cascade(UserList[Handler]):
             Self: Cascade object
         """
         if isinstance(other, Handler):
-            self.insert(0, other)
+            return Cascade(other, *self)
         else:
             raise UnsupportedCascade(other, self)
-        return self
 
-    __add__ = __rshift__
-    __iadd__ = __rshift__
-    __radd__ = __rrshift__
+    def __getitem__(self, index: int) -> Handler:
+        return self.handlers[index]
+
+    def __len__(self) -> int:
+        return len(self.handlers)
+
     __call__ = run
 
 
