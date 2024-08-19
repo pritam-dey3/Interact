@@ -1,4 +1,8 @@
+import json
+
 from openai import AsyncOpenAI
+from openai._utils import async_transform
+from openai.types.chat.completion_create_params import CompletionCreateParams
 
 from interact import Handler, HandlerChain, Message
 from interact.exceptions import HandlerError
@@ -22,7 +26,7 @@ class OpenAiLLM(Handler):
         Args:
             msg (Message): user response sent to OpenAI chatGPT.
             chain (HandlerChain): Casccade that this handler is a part of.
-            
+
         Returns:
             Message: response from OpenAI chatGPT.
         """
@@ -106,3 +110,74 @@ class RetryHandlerChain(Handler):
             raise HandlerError("RetryHandlerChain failed after max attempts")
 
         return output
+
+
+class BatchInputOpenAiLLM(Handler):
+    def __init__(
+        self, role: str | None = None, model: str = "gpt-4o-mini", **openai_kwgs
+    ) -> None:
+        self.role = role if role else ""
+        self.model = model
+        # self.client = AsyncOpenAI(**openai_kwgs)
+
+    async def process(self, msg: Message, chain: HandlerChain) -> str:
+        """Generate a response using the message passed to this handler. If OpenAI api
+        key is not set in the environment, then the api key can be passed as a variable
+        in the HandlerChain.variables dictionary.
+
+        Args:
+            msg (Message): user response sent to OpenAI chatGPT.
+            chain (HandlerChain): Casccade that this handler is a part of.
+
+        Returns:
+            Message: response from OpenAI chatGPT.
+        """
+        if not self.role:
+            self.role = msg.sender
+
+        if msg.image:
+            content = [
+                {"type": "text", "text": str(msg)},
+                {
+                    "type": "image_url",
+                    "image_url": {
+                        "url": f"data:image/png;base64,{msg.image}",
+                        "detail": msg.info.get("image_detail", "auto"),
+                    },
+                },
+            ]
+        else:
+            content = str(msg)
+
+        # Add completion_config to the message if not already present
+        completion_config: dict = msg.info.get("completion_config", {})
+        if "model" not in completion_config and self.model:
+            completion_config["model"] = self.model
+
+        messages = [{"role": "user", "content": content}]
+        completion_config.update(messages=messages)
+        # res = await self.client.chat.completions.create(
+        #     **completion_config,
+        #     messages=[
+        #         {"role": "user", "content": content},
+        #     ],
+        # )
+        data = await async_transform(
+            completion_config,
+            CompletionCreateParams,
+        )
+
+        # reply = ". ".join([str(ch.message.content) for ch in res.choices])
+        # return Message(primary=reply, sender=self.role, openai_response=dict(res))
+
+        assert (
+            "custom_id" in msg.info
+        ), "unique id for the message is required in `info['custom_id']`"
+        line = {
+            "custom_id": msg.info["custom_id"],
+            "method": "POST",
+            "url": "/v1/chat/completions",
+            "body": data,
+        }
+        line_s = json.dumps(line)
+        return line_s
