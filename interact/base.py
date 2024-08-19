@@ -100,6 +100,7 @@ class Handler(ABC):
         next_msg = await self.process(msg, chain)
         if isinstance(next_msg, Message):
             next_msg = next_msg[:]
+            next_msg.info.update(msg.info)
             next_msg.sender = self.role
         elif isinstance(next_msg, str):
             next_msg = Message(next_msg, sender=self.role)
