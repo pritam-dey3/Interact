@@ -47,11 +47,11 @@ class Message(UserString):
             )
         return super().__radd__(other)
 
-    def __repr__(self):
-        return f"Message({self.primary}, sender='{self.sender}', info={self.info})"
+    # def __repr__(self):
+    #     return f"Message({self.primary}, sender='{self.sender}', info={self.info})"
 
     def __str__(self) -> str:
-        return f"{self.sender}: {self.primary}"
+        return self.primary
 
     def __copy__(self) -> Message:
         return Message(self.primary, sender=self.sender, **self.info)
