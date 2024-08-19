@@ -4,6 +4,7 @@ import logging
 from abc import ABC, abstractmethod
 from collections import UserString
 from collections.abc import Sequence
+from copy import copy
 from typing import Any, Callable, Coroutine, Literal, overload
 
 from interact.exceptions import HandlerError, UnsupportedHandlerChain
@@ -52,6 +53,9 @@ class Message(UserString):
     def __str__(self) -> str:
         return f"{self.sender}: {self.primary}"
 
+    def __copy__(self) -> Message:
+        return Message(self.primary, sender=self.sender, **self.info)
+
 
 class Handler(ABC):
     """Base class for all handlers. Each handler has a role and a process method.
@@ -99,8 +103,7 @@ class Handler(ABC):
         """
         next_msg = await self.process(msg, chain)
         if isinstance(next_msg, Message):
-            next_msg = next_msg[:]
-            next_msg.info.update(msg.info)
+            next_msg = copy(next_msg)
             next_msg.sender = self.role
         elif isinstance(next_msg, str):
             next_msg = Message(next_msg, sender=self.role)
