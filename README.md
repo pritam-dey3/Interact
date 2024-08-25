@@ -2,6 +2,16 @@
 A simple python library to interact and build applications with Large Language Models.
 
 ## Core Concept
+
+```mermaid
+graph LR
+    subgraph "HandlerChain"
+        A[Handler 1] -->|Message| B[Handler 2]
+        B -->|Message| C[Handler 3]
+    end
+    Input["Input (Message)"] --> A
+    C --> Output["Output (Message)"]
+```
 `Interact` has three main components / assumptions:
 
 * Entities in an application communicate through `Message`s.

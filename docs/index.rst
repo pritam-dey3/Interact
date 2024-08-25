@@ -26,6 +26,8 @@ Installation
 
    pip install git+https://github.com/pritam-dey3/interact
 
+Start learning about Interact by reading the :doc:`getting-started` guide.
+
 Why Interact?
 -------------
 
