@@ -71,7 +71,7 @@ We define two ``Handler`` s, ``CompanyNamePrompt`` and ``CompanyTaglinePrompt`` 
 
 Note that:
 
-- Interact allows you to define simple async functions as ``Handler`` s. These functions are responsible for *transforming* the ``Message``s.
+- Interact allows you to define simple async functions as ``Handler`` s. These functions are responsible for *transforming* the ``Message`` s.
 - You may choose to do anything inside these functions, including making API calls, formatting the prompts, anything your application needs to transform the input ``Message``.
 - The functions are decorated with the ``@handler`` decorator to indicate that they are ``Handler`` s. Under the hood, the decorator creates a ``Handler`` object from the function.
 - The input to the function is a ``Message`` and current ``HandlerChain``. The ``Message`` is the resulting output from the previous ``Handler`` in the ``HandlerChain``.
