@@ -23,6 +23,7 @@ extensions = [
     "sphinx.ext.napoleon",
     "sphinx_autobuild",
     "sphinx.ext.githubpages",
+    "sphinxcontrib.mermaid",
 ]
 autodoc_typehints = "description"
 

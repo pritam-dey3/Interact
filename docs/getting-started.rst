@@ -6,6 +6,17 @@ Getting Started
 Core Concept
 ------------
 
+.. mermaid::
+
+    graph LR
+        subgraph "HandlerChain"
+            A[Handler 1] -- "Message" --- B[Handler 2]
+            B -- "Message" --- C[Handler 3]
+        end
+        Input["Input (Message)"] --> A
+        C --> Output["Output (Message)"]
+
+
 ``Interact`` has three main components / assumptions:
 
 - Entities in an application communicate through ``Message`` s.
@@ -59,6 +70,7 @@ We define two ``Handler`` s, ``CompanyNamePrompt`` and ``CompanyTaglinePrompt`` 
         )
 
 Note that:
+
 - Interact allows you to define simple async functions as ``Handler`` s. These functions are responsible for *transforming* the ``Message``s.
 - You may choose to do anything inside these functions, including making API calls, formatting the prompts, anything your application needs to transform the input ``Message``.
 - The functions are decorated with the ``@handler`` decorator to indicate that they are ``Handler`` s. Under the hood, the decorator creates a ``Handler`` object from the function.
