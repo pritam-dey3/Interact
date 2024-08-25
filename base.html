@@ -14,7 +14,7 @@
         <script src="_static/jquery.js?v=5d32c60e"></script>
         <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
         <script src="_static/documentation_options.js?v=5929fcd5"></script>
-        <script src="_static/doctools.js?v=888ff710"></script>
+        <script src="_static/doctools.js?v=9a2dae69"></script>
         <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
@@ -46,18 +46,23 @@
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="getting-started.html">Getting Started</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Base Classes</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#interact.base.Cascade"><code class="docutils literal notranslate"><span class="pre">Cascade</span></code></a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#interact.base.Cascade.find_recent"><code class="docutils literal notranslate"><span class="pre">Cascade.find_recent()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="#interact.base.Cascade.start"><code class="docutils literal notranslate"><span class="pre">Cascade.start()</span></code></a></li>
-</ul>
-</li>
 <li class="toctree-l2"><a class="reference internal" href="#interact.base.Handler"><code class="docutils literal notranslate"><span class="pre">Handler</span></code></a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#interact.base.Handler.get_next_message"><code class="docutils literal notranslate"><span class="pre">Handler.get_next_message()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#interact.base.Handler.process"><code class="docutils literal notranslate"><span class="pre">Handler.process()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#interact.base.Handler.role"><code class="docutils literal notranslate"><span class="pre">Handler.role</span></code></a></li>
 </ul>
 </li>
+<li class="toctree-l2"><a class="reference internal" href="#interact.base.HandlerChain"><code class="docutils literal notranslate"><span class="pre">HandlerChain</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#interact.base.HandlerChain.handlers"><code class="docutils literal notranslate"><span class="pre">HandlerChain.handlers</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#interact.base.HandlerChain.variables"><code class="docutils literal notranslate"><span class="pre">HandlerChain.variables</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#interact.base.HandlerChain.last_msg"><code class="docutils literal notranslate"><span class="pre">HandlerChain.last_msg</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#interact.base.HandlerChain.history"><code class="docutils literal notranslate"><span class="pre">HandlerChain.history</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#interact.base.HandlerChain.step"><code class="docutils literal notranslate"><span class="pre">HandlerChain.step</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#interact.base.HandlerChain.run"><code class="docutils literal notranslate"><span class="pre">HandlerChain.run()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#interact.base.History"><code class="docutils literal notranslate"><span class="pre">History</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="#interact.base.Message"><code class="docutils literal notranslate"><span class="pre">Message</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#interact.base.handler"><code class="docutils literal notranslate"><span class="pre">handler()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="handlers.html">Handler Classes</a></li>
@@ -90,125 +95,37 @@
   <section id="module-interact.base">
 <span id="base-classes"></span><h1>Base Classes<a class="headerlink" href="#module-interact.base" title="Link to this heading"></a></h1>
 <dl class="py class">
-<dt class="sig sig-object py" id="interact.base.Cascade">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">interact.base.</span></span><span class="sig-name descname"><span class="pre">Cascade</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">handlers</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vars</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#interact.base.Cascade" title="Link to this definition"></a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
-<p>Cascade is a sequence of handlers that are executed in order.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>handlers</strong> (<em>list</em><em>[</em><a class="reference internal" href="#interact.base.Handler" title="interact.base.Handler"><em>Handler</em></a><em>]</em>) – list of handlers in the cascade</p></li>
-<li><p><strong>vars</strong> (<em>dict</em>) – variables that are shared between handlers</p></li>
-<li><p><strong>last_msg</strong> (<a class="reference internal" href="#interact.base.Message" title="interact.base.Message"><em>Message</em></a>) – last message that was processed by the last handler in the cascade</p></li>
-<li><p><strong>history</strong> (<em>list</em><em>[</em><a class="reference internal" href="#interact.base.Message" title="interact.base.Message"><em>Message</em></a><em>]</em>) – list of all messages that were processed</p></li>
-<li><p><strong>step</strong> (<em>int</em>) – step counter during execution</p></li>
-</ul>
-</dd>
-</dl>
-<dl class="py method">
-<dt class="sig sig-object py" id="interact.base.Cascade.find_recent">
-<span class="sig-name descname"><span class="pre">find_recent</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">role</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#interact.base.Cascade.find_recent" title="Link to this definition"></a></dt>
-<dd><p>Find the most recent message sent by a role prior to the current step.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>role</strong> (<em>str</em>) – role of the sender</p>
-</dd>
-<dt class="field-even">Raises<span class="colon">:</span></dt>
-<dd class="field-even"><p><strong>CascadeError</strong> – if no such role is found</p>
-</dd>
-<dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p>most recent message sent by the role</p>
-</dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><a class="reference internal" href="#interact.base.Message" title="interact.base.Message">Message</a></p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="interact.base.Cascade.start">
-<em class="property"><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">start</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">msg</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vars</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#interact.base.Cascade.start" title="Link to this definition"></a></dt>
-<dd><p>Start execution of the cascade. The first message is either a string
-(converted to Message with sender “Cascade-Start) or a Message object.
-Additional variables can be passed to the cascade with the vars argument.</p>
-<p>Handlers are executed in order. Each handler receives the last message as input
-and returns a new message.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>msg</strong> (<em>str</em><em> | </em><a class="reference internal" href="#interact.base.Message" title="interact.base.Message"><em>Message</em></a><em>, </em><em>optional</em>) – Starting message for the Cascade. Defaults to “”.</p></li>
-<li><p><strong>vars</strong> (<em>dict</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>]</em><em>, </em><em>optional</em>) – Additional variables those will be shared by all handlers. Handlers can update the variables during their processing stage. Defaults to {}.</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>Cascade object</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>Self</p>
-</dd>
-</dl>
-</dd></dl>
-
-</dd></dl>
-
-<dl class="py class">
 <dt class="sig sig-object py" id="interact.base.Handler">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">interact.base.</span></span><span class="sig-name descname"><span class="pre">Handler</span></span><a class="headerlink" href="#interact.base.Handler" title="Link to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">ABC</span></code></p>
 <p>Base class for all handlers. Each handler has a role and a process method.
-The process method takes a Message object and a Cascade object as input and returns
+The process method takes a Message object and a HandlerChain object as input and returns
 a transformed Message object.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Raises<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>NotImplementedError</strong> – if the process method is not implemented</p></li>
-<li><p><strong>HandlerError</strong> – if the output of process is not a Message or str</p></li>
-<li><p><strong>UnsupportedCascade</strong> – if the next object in the sequence is not a Handler or</p></li>
-<li><p><strong>Cascade.</strong> – </p></li>
+<li><p><strong>NotImplementedError</strong> – If the process method is not implemented.</p></li>
+<li><p><strong>HandlerError</strong> – If the output of process is not a Message or str.</p></li>
+<li><p><strong>UnsupportedHandlerChain</strong> – If the next object in the sequence is not a Handler or HandlerChain.</p></li>
 </ul>
 </dd>
 </dl>
-<dl class="py method">
-<dt class="sig sig-object py" id="interact.base.Handler.get_next_message">
-<em class="property"><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_next_message</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">msg</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">csd</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#interact.base.Handler.get_next_message" title="Link to this definition"></a></dt>
-<dd><p>Get the next message in the cascade. This method is called by the Cascade
-that is executing this handler. The output of process is converted to a Message,
-and the sender is set to the role of this handler.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>msg</strong> (<a class="reference internal" href="#interact.base.Message" title="interact.base.Message"><em>Message</em></a>) – Message to be processed / transformed.</p></li>
-<li><p><strong>csd</strong> (<a class="reference internal" href="#interact.base.Cascade" title="interact.base.Cascade"><em>Cascade</em></a>) – current Cascade object that is executing this handler.</p></li>
-</ul>
-</dd>
-<dt class="field-even">Raises<span class="colon">:</span></dt>
-<dd class="field-even"><p><strong>HandlerError</strong> – if the output of process is not a Message or str</p>
-</dd>
-<dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p>transformed message</p>
-</dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><a class="reference internal" href="#interact.base.Message" title="interact.base.Message">Message</a></p>
-</dd>
-</dl>
-</dd></dl>
-
 <dl class="py method">
 <dt class="sig sig-object py" id="interact.base.Handler.process">
-<em class="property"><span class="pre">abstract</span><span class="w"> </span><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">process</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">msg</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">csd</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#interact.base.Handler.process" title="Link to this definition"></a></dt>
+<em class="property"><span class="pre">abstract</span><span class="w"> </span><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">process</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">msg</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">chain</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#interact.base.Handler.process" title="Link to this definition"></a></dt>
 <dd><p>Process a message and return a new transformed message.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>msg</strong> (<a class="reference internal" href="#interact.base.Message" title="interact.base.Message"><em>Message</em></a>) – Message to be processed / transformed.</p></li>
-<li><p><strong>csd</strong> (<a class="reference internal" href="#interact.base.Cascade" title="interact.base.Cascade"><em>Cascade</em></a>) – current Cascade object that is executing this handler.</p></li>
+<li><p><strong>chain</strong> (<a class="reference internal" href="#interact.base.HandlerChain" title="interact.base.HandlerChain"><em>HandlerChain</em></a>) – Current HandlerChain object that is executing this handler.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Raises<span class="colon">:</span></dt>
-<dd class="field-even"><p><strong>NotImplementedError</strong> – if the process method is not implemented</p>
+<dd class="field-even"><p><strong>NotImplementedError</strong> – If the process method is not implemented.</p>
 </dd>
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p>transformed message</p>
+<dd class="field-odd"><p>Transformed message.</p>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
 <dd class="field-even"><p>str | <a class="reference internal" href="#interact.base.Message" title="interact.base.Message">Message</a></p>
@@ -224,18 +141,156 @@ and the sender is set to the role of this handler.</p>
 </dd></dl>
 
 <dl class="py class">
-<dt class="sig sig-object py" id="interact.base.Message">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">interact.base.</span></span><span class="sig-name descname"><span class="pre">Message</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">primary</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sender</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#interact.base.Message" title="Link to this definition"></a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
-<p>Message object that is passed between handlers in a Cascade. Each message object
-has</p>
+<dt class="sig sig-object py" id="interact.base.HandlerChain">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">interact.base.</span></span><span class="sig-name descname"><span class="pre">HandlerChain</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">handlers</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">variables</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#interact.base.HandlerChain" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Sequence</span></code>[<a class="reference internal" href="#interact.base.Handler" title="interact.base.Handler"><code class="xref py py-class docutils literal notranslate"><span class="pre">Handler</span></code></a>]</p>
+<p>HandlerChain is a sequence of handlers that are executed in order.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>primary</strong> (<em>str</em>) – the main content of the message</p></li>
-<li><p><strong>sender</strong> (<em>str</em>) – the role of the sender of the message</p></li>
-<li><p><strong>kwargs</strong> (<em>dict</em>) – additional information about the message</p></li>
+<li><p><strong>handlers</strong> (<em>tuple</em><em>[</em><a class="reference internal" href="#interact.base.Handler" title="interact.base.Handler"><em>Handler</em></a><em>, </em><em>...</em><em>]</em>) – Array of handlers in the chain.</p></li>
+<li><p><strong>variables</strong> (<em>dict</em>) – Variables that are shared between handlers.</p></li>
 </ul>
+</dd>
+</dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="interact.base.HandlerChain.handlers">
+<span class="sig-name descname"><span class="pre">handlers</span></span><a class="headerlink" href="#interact.base.HandlerChain.handlers" title="Link to this definition"></a></dt>
+<dd><p>Array of handlers in the chain.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>tuple[<a class="reference internal" href="#interact.base.Handler" title="interact.base.Handler">Handler</a>, …]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="interact.base.HandlerChain.variables">
+<span class="sig-name descname"><span class="pre">variables</span></span><a class="headerlink" href="#interact.base.HandlerChain.variables" title="Link to this definition"></a></dt>
+<dd><p>Variables that are shared between handlers.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="interact.base.HandlerChain.last_msg">
+<span class="sig-name descname"><span class="pre">last_msg</span></span><a class="headerlink" href="#interact.base.HandlerChain.last_msg" title="Link to this definition"></a></dt>
+<dd><p>Last message that was processed by the last handler in the chain.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#interact.base.Message" title="interact.base.Message">Message</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="interact.base.HandlerChain.history">
+<span class="sig-name descname"><span class="pre">history</span></span><a class="headerlink" href="#interact.base.HandlerChain.history" title="Link to this definition"></a></dt>
+<dd><p>History of all messages that were processed.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#interact.base.History" title="interact.base.History">History</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="interact.base.HandlerChain.step">
+<span class="sig-name descname"><span class="pre">step</span></span><a class="headerlink" href="#interact.base.HandlerChain.step" title="Link to this definition"></a></dt>
+<dd><p>Step counter during execution.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="interact.base.HandlerChain.run">
+<em class="property"><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">msg</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="#interact.base.Message" title="interact.base.Message"><span class="pre">Message</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">variables</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">{}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">return_history</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Literal</span><span class="p"><span class="pre">[</span></span><span class="k"><span class="pre">False</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#interact.base.Message" title="interact.base.Message"><span class="pre">Message</span></a></span></span><a class="headerlink" href="#interact.base.HandlerChain.run" title="Link to this definition"></a></dt>
+<dt class="sig sig-object py">
+<em class="property"><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">msg</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="#interact.base.Message" title="interact.base.Message"><span class="pre">Message</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">variables</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">{}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">return_history</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Literal</span><span class="p"><span class="pre">[</span></span><span class="k"><span class="pre">True</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#interact.base.Message" title="interact.base.Message"><span class="pre">Message</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="#interact.base.History" title="interact.base.History"><span class="pre">History</span></a><span class="p"><span class="pre">]</span></span></span></span></dt>
+<dd><p>Start execution of the HandlerChain.</p>
+<p>The first message is either a string (converted to Message with sender “input”) or a Message object.
+Additional variables can be passed to the HandlerChain with the variables argument.</p>
+<p>Handlers are executed in order. Each handler receives the last message as input
+and returns a new transformed message.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>msg</strong> (<em>str</em><em> | </em><a class="reference internal" href="#interact.base.Message" title="interact.base.Message"><em>Message</em></a><em>, </em><em>optional</em>) – Starting message for the HandlerChain. Defaults to “”.</p></li>
+<li><p><strong>variables</strong> (<em>dict</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>]</em><em>, </em><em>optional</em>) – Additional variables that will be shared by all handlers. Handlers can update the variables during their processing stage. Defaults to {}.</p></li>
+<li><p><strong>return_history</strong> (<em>bool</em><em>, </em><em>optional</em>) – If True, the history of all messages is returned. Defaults to False.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Transformed message or tuple of transformed message and history.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#interact.base.Message" title="interact.base.Message">Message</a> | tuple[<a class="reference internal" href="#interact.base.Message" title="interact.base.Message">Message</a>, <a class="reference internal" href="#interact.base.History" title="interact.base.History">History</a>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="interact.base.History">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">interact.base.</span></span><span class="sig-name descname"><span class="pre">History</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">messages</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#interact.base.History" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Sequence</span></code>[<a class="reference internal" href="#interact.base.Message" title="interact.base.Message"><code class="xref py py-class docutils literal notranslate"><span class="pre">Message</span></code></a>]</p>
+<p>History is a sequence of messages that were processed by a HandlerChain.
+.. attribute:: messages</p>
+<blockquote>
+<div><p>Tuple of messages in the history.</p>
+<dl class="field-list simple">
+<dt class="field-odd">type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>tuple[Message]</p>
+</dd>
+</dl>
+</div></blockquote>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>messages</strong> (<a class="reference internal" href="#interact.base.Message" title="interact.base.Message"><em>Message</em></a>)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="interact.base.Message">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">interact.base.</span></span><span class="sig-name descname"><span class="pre">Message</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">primary</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sender</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'Unknown'</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#interact.base.Message" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">UserString</span></code></p>
+<p>Message object that is passed between handlers in a HandlerChain. Each message object
+has a primary content, a sender role, and additional information.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>primary</strong> (<em>str</em>) – The main content of the message.</p></li>
+<li><p><strong>sender</strong> (<em>str</em><em>, </em><em>optional</em>) – The role of the sender of the message. Defaults to “Unknown”.</p></li>
+<li><p><strong>kwargs</strong> (<em>dict</em>) – Additional information about the message.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="interact.base.handler">
+<span class="sig-prename descclassname"><span class="pre">interact.base.</span></span><span class="sig-name descname"><span class="pre">handler</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">func</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#interact.base.handler" title="Link to this definition"></a></dt>
+<dd><p>Decorator to convert any async function to a Handler object.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>func</strong> (<em>Callable</em><em>[</em><em>[</em><a class="reference internal" href="#interact.base.Message" title="interact.base.Message"><em>Message</em></a><em>, </em><a class="reference internal" href="#interact.base.HandlerChain" title="interact.base.HandlerChain"><em>HandlerChain</em></a><em>]</em><em>, </em><em>Coroutine</em><em>[</em><em>None</em><em>, </em><em>None</em><em>, </em><em>str</em><em> | </em><a class="reference internal" href="#interact.base.Message" title="interact.base.Message"><em>Message</em></a><em>]</em><em>]</em>) – Async function that takes a Message and HandlerChain object as input and</p></li>
+<li><p><strong>object.</strong> (<em>returns a str</em><em> or </em><a class="reference internal" href="#interact.base.Message" title="interact.base.Message"><em>Message</em></a>)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Handler object.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>type[<a class="reference internal" href="#interact.base.Handler" title="interact.base.Handler">Handler</a>]</p>
 </dd>
 </dl>
 </dd></dl>

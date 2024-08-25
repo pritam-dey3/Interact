@@ -14,7 +14,7 @@
         <script src="_static/jquery.js?v=5d32c60e"></script>
         <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
         <script src="_static/documentation_options.js?v=5929fcd5"></script>
-        <script src="_static/doctools.js?v=888ff710"></script>
+        <script src="_static/doctools.js?v=9a2dae69"></script>
         <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
@@ -50,9 +50,16 @@
 <li class="toctree-l3"><a class="reference internal" href="#interact.handlers.AssignRole.process"><code class="docutils literal notranslate"><span class="pre">AssignRole.process()</span></code></a></li>
 </ul>
 </li>
+<li class="toctree-l2"><a class="reference internal" href="#interact.handlers.BatchInputOpenAiLLM"><code class="docutils literal notranslate"><span class="pre">BatchInputOpenAiLLM</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#interact.handlers.BatchInputOpenAiLLM.process"><code class="docutils literal notranslate"><span class="pre">BatchInputOpenAiLLM.process()</span></code></a></li>
+</ul>
+</li>
 <li class="toctree-l2"><a class="reference internal" href="#interact.handlers.OpenAiLLM"><code class="docutils literal notranslate"><span class="pre">OpenAiLLM</span></code></a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#interact.handlers.OpenAiLLM.process"><code class="docutils literal notranslate"><span class="pre">OpenAiLLM.process()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="#interact.handlers.OpenAiLLM.role"><code class="docutils literal notranslate"><span class="pre">OpenAiLLM.role</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#interact.handlers.RetryHandlerChain"><code class="docutils literal notranslate"><span class="pre">RetryHandlerChain</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#interact.handlers.RetryHandlerChain.process"><code class="docutils literal notranslate"><span class="pre">RetryHandlerChain.process()</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -89,28 +96,28 @@
 <dt class="sig sig-object py" id="interact.handlers.AssignRole">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">interact.handlers.</span></span><span class="sig-name descname"><span class="pre">AssignRole</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">role</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#interact.handlers.AssignRole" title="Link to this definition"></a></dt>
 <dd><p>Bases: <a class="reference internal" href="base.html#interact.base.Handler" title="interact.base.Handler"><code class="xref py py-class docutils literal notranslate"><span class="pre">Handler</span></code></a></p>
-<p>Assign a role to the last message sent to this Handler by the current Cascade.</p>
+<p>Assign a role to the last message sent to this Handler by the current HandlerChain.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>role</strong> (<em>str</em>) – </p>
+<dd class="field-odd"><p><strong>role</strong> (<em>str</em>)</p>
 </dd>
 </dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="interact.handlers.AssignRole.process">
-<em class="property"><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">process</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">msg</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">csd</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#interact.handlers.AssignRole.process" title="Link to this definition"></a></dt>
+<em class="property"><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">process</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">msg</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">chain</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#interact.handlers.AssignRole.process" title="Link to this definition"></a></dt>
 <dd><p>Process a message and return a new transformed message.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>msg</strong> (<a class="reference internal" href="base.html#interact.base.Message" title="interact.base.Message"><em>Message</em></a>) – Message to be processed / transformed.</p></li>
-<li><p><strong>csd</strong> (<a class="reference internal" href="base.html#interact.base.Cascade" title="interact.base.Cascade"><em>Cascade</em></a>) – current Cascade object that is executing this handler.</p></li>
+<li><p><strong>chain</strong> (<a class="reference internal" href="base.html#interact.base.HandlerChain" title="interact.base.HandlerChain"><em>HandlerChain</em></a>) – Current HandlerChain object that is executing this handler.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Raises<span class="colon">:</span></dt>
-<dd class="field-even"><p><strong>NotImplementedError</strong> – if the process method is not implemented</p>
+<dd class="field-even"><p><strong>NotImplementedError</strong> – If the process method is not implemented.</p>
 </dd>
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p>transformed message</p>
+<dd class="field-odd"><p>Transformed message.</p>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
 <dd class="field-even"><p>str | <a class="reference internal" href="base.html#interact.base.Message" title="interact.base.Message">Message</a></p>
@@ -121,29 +128,28 @@
 </dd></dl>
 
 <dl class="py class">
-<dt class="sig sig-object py" id="interact.handlers.OpenAiLLM">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">interact.handlers.</span></span><span class="sig-name descname"><span class="pre">OpenAiLLM</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">role</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'gpt-3.5-turbo'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#interact.handlers.OpenAiLLM" title="Link to this definition"></a></dt>
+<dt class="sig sig-object py" id="interact.handlers.BatchInputOpenAiLLM">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">interact.handlers.</span></span><span class="sig-name descname"><span class="pre">BatchInputOpenAiLLM</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">role</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'gpt-4o-mini'</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">openai_kwgs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#interact.handlers.BatchInputOpenAiLLM" title="Link to this definition"></a></dt>
 <dd><p>Bases: <a class="reference internal" href="base.html#interact.base.Handler" title="interact.base.Handler"><code class="xref py py-class docutils literal notranslate"><span class="pre">Handler</span></code></a></p>
-<p>Handler for generating a response using OpenAI’s Language Model.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>role</strong> (<em>str</em>) – </p></li>
-<li><p><strong>model</strong> (<em>str</em>) – </p></li>
+<li><p><strong>role</strong> (<em>str</em>)</p></li>
+<li><p><strong>model</strong> (<em>str</em>)</p></li>
 </ul>
 </dd>
 </dl>
 <dl class="py method">
-<dt class="sig sig-object py" id="interact.handlers.OpenAiLLM.process">
-<em class="property"><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">process</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">msg</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">csd</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#interact.handlers.OpenAiLLM.process" title="Link to this definition"></a></dt>
+<dt class="sig sig-object py" id="interact.handlers.BatchInputOpenAiLLM.process">
+<em class="property"><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">process</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">msg</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">chain</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#interact.handlers.BatchInputOpenAiLLM.process" title="Link to this definition"></a></dt>
 <dd><p>Generate a response using the message passed to this handler. If OpenAI api
 key is not set in the environment, then the api key can be passed as a variable
-in the Cascade.vars dictionary.</p>
+in the HandlerChain.variables dictionary.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>msg</strong> (<a class="reference internal" href="base.html#interact.base.Message" title="interact.base.Message"><em>Message</em></a>) – user response sent to OpenAI chatGPT.</p></li>
-<li><p><strong>csd</strong> (<a class="reference internal" href="base.html#interact.base.Cascade" title="interact.base.Cascade"><em>Cascade</em></a>) – Casccade that this handler is a part of.</p></li>
+<li><p><strong>chain</strong> (<a class="reference internal" href="base.html#interact.base.HandlerChain" title="interact.base.HandlerChain"><em>HandlerChain</em></a>) – Casccade that this handler is a part of.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -155,10 +161,81 @@ in the Cascade.vars dictionary.</p>
 </dl>
 </dd></dl>
 
-<dl class="py attribute">
-<dt class="sig sig-object py" id="interact.handlers.OpenAiLLM.role">
-<span class="sig-name descname"><span class="pre">role</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'Assistant'</span></em><a class="headerlink" href="#interact.handlers.OpenAiLLM.role" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="interact.handlers.OpenAiLLM">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">interact.handlers.</span></span><span class="sig-name descname"><span class="pre">OpenAiLLM</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">role</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'gpt-4o-mini'</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">openai_kwgs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#interact.handlers.OpenAiLLM" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="base.html#interact.base.Handler" title="interact.base.Handler"><code class="xref py py-class docutils literal notranslate"><span class="pre">Handler</span></code></a></p>
+<p>Handler for generating a response using OpenAI’s Language Model.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>role</strong> (<em>str</em>)</p></li>
+<li><p><strong>model</strong> (<em>str</em>)</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="interact.handlers.OpenAiLLM.process">
+<em class="property"><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">process</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">msg</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">chain</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#interact.handlers.OpenAiLLM.process" title="Link to this definition"></a></dt>
+<dd><p>Generate a response using the message passed to this handler. If OpenAI api
+key is not set in the environment, then the api key can be passed as a variable
+in the HandlerChain.variables dictionary.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>msg</strong> (<a class="reference internal" href="base.html#interact.base.Message" title="interact.base.Message"><em>Message</em></a>) – user response sent to OpenAI chatGPT.</p></li>
+<li><p><strong>chain</strong> (<a class="reference internal" href="base.html#interact.base.HandlerChain" title="interact.base.HandlerChain"><em>HandlerChain</em></a>) – Casccade that this handler is a part of.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>response from OpenAI chatGPT.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="base.html#interact.base.Message" title="interact.base.Message">Message</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="interact.handlers.RetryHandlerChain">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">interact.handlers.</span></span><span class="sig-name descname"><span class="pre">RetryHandlerChain</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sub_chain</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_attempts</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">3</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#interact.handlers.RetryHandlerChain" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="base.html#interact.base.Handler" title="interact.base.Handler"><code class="xref py py-class docutils literal notranslate"><span class="pre">Handler</span></code></a></p>
+<p>Retry a HandlerChain until it produces some output before max_attempts.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>sub_chain</strong> (<a class="reference internal" href="base.html#interact.base.HandlerChain" title="interact.base.HandlerChain"><em>HandlerChain</em></a>) – HandlerChain to be retried.</p></li>
+<li><p><strong>max_attempts</strong> (<em>int</em><em>, </em><em>optional</em>) – Maximum number of times to retry. Defaults to 3.</p></li>
+<li><p><strong>role</strong> (<em>str</em><em>, </em><em>optional</em>) – Role of the handler. Defaults to “RetryHandlerChain”.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="interact.handlers.RetryHandlerChain.process">
+<em class="property"><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">process</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">msg</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">chain</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#interact.handlers.RetryHandlerChain.process" title="Link to this definition"></a></dt>
+<dd><p>Process a message and return a new transformed message.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>msg</strong> (<a class="reference internal" href="base.html#interact.base.Message" title="interact.base.Message"><em>Message</em></a>) – Message to be processed / transformed.</p></li>
+<li><p><strong>chain</strong> (<a class="reference internal" href="base.html#interact.base.HandlerChain" title="interact.base.HandlerChain"><em>HandlerChain</em></a>) – Current HandlerChain object that is executing this handler.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>NotImplementedError</strong> – If the process method is not implemented.</p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Transformed message.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>str | <a class="reference internal" href="base.html#interact.base.Message" title="interact.base.Message">Message</a></p>
+</dd>
+</dl>
+</dd></dl>
 
 </dd></dl>
 

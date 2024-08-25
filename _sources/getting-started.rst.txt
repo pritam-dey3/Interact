@@ -10,7 +10,7 @@ Core Concept
 
 - Entities in an application communicate through ``Message`` s.
 - ``Message`` s are passed through ``Handler`` s that can modify (transform, format, etc.) the ``Message``.
-- ``Handler`` s are chained together to form a ``Cascade``. ``Cascade`` s hold a sequence of ``Handler`` s that are executed in order.
+- ``Handler`` s are chained together to form a ``HandlerChain``. ``HandlerChain`` s hold a sequence of ``Handler`` s that are executed in order.
 
 
 
@@ -27,11 +27,13 @@ Importing neccessary modules
 .. code-block:: python
 
     import asyncio
-    import openai
-    from interact.base import Cascade, Handler, Message
+
+    from dotenv import load_dotenv
+
+    from interact import HandlerChain, Message, handler
     from interact.handlers import OpenAiLLM
 
-    openai.api_key = "YOUR_API_KEY"
+    load_dotenv()  # load openai api key from .env file
 
 Define handlers
 ~~~~~~~~~~~~~~~
@@ -39,49 +41,40 @@ We define two ``Handler`` s, ``CompanyNamePrompt`` and ``CompanyTaglinePrompt`` 
 
 .. code-block:: python
 
-    class CompanyNamePrompt(Handler):
-        role = "CompanyNameGenerator"
-        prompt = (
-            "What would be an appropriate name for a business specializing in {product}?"
+    @handler
+    async def company_name(msg: Message, chain: HandlerChain) -> str:
+        chain.variables["product"] = msg.primary
+        return (
+            f"What would be an appropriate name for a business specializing in {msg.primary}?"
+            "Only mention the company name and nothing else."
         )
 
-        async def process(self, msg: Message, csd: Cascade) -> str:
-            new_msg = self.prompt.format(product=msg.primary)
-            csd.vars["product"] = msg.primary
-            return new_msg
 
-
-    class CompanyTaglinePrompt(Handler):
-        role = "CompanyTaglineGenerator"
-        prompt = (
-            "What would be an appropriate tagline for a business specializing in {product}"
-            " and with company name {company_name}?\nFormat your output in the following"
-            " format:\n<company_name>: <tagline>"
+    @handler
+    async def company_tagline(msg: Message, chain: HandlerChain) -> str:
+        return (
+            f"What would be an appropriate tagline for a business specializing in {chain.variables['product']}"
+            f" and with company name {msg.primary}?\nFormat your output in the following"
+            f" format:\n{msg.primary}: <tagline>"
         )
-
-        async def process(self, msg: Message, csd: Cascade) -> str:
-            new_msg = self.prompt.format(
-                company_name=msg.primary, product=csd.vars["product"]
-            )
-            return new_msg
 
 Note that:
+- Interact allows you to define simple async functions as ``Handler`` s. These functions are responsible for *transforming* the ``Message``s.
+- You may choose to do anything inside these functions, including making API calls, formatting the prompts, anything your application needs to transform the input ``Message``.
+- The functions are decorated with the ``@handler`` decorator to indicate that they are ``Handler`` s. Under the hood, the decorator creates a ``Handler`` object from the function.
+- The input to the function is a ``Message`` and current ``HandlerChain``. The ``Message`` is the resulting output from the previous ``Handler`` in the ``HandlerChain``.
+- The current ``HandlerChain`` is passed to the function to allow handlers to create and access variables in the ``HandlerChain``. This is useful when you want to share information across multiple handlers in a ``HandlerChain``. Note in this example, in  ``company_name`` we store the product name in the variable ``product`` and accessed it later in ``company_tagline`` handler.
 
-- The ``process`` method of the ``Handler`` s are used to modify the ``Message`` s.
-- The ``process`` method of each ``Handler`` takes in the last ``Message`` and the ``Cascade`` which the ``Handler`` is a part of and currently executing in.
-- ``CompanyNamePrompt`` creates a variable ``product`` in the ``Cascade``. Variables stored in ``Cascade.vars`` are accessible to all ``Handler`` s in the *current* ``Cascade``.
-- ``CompanyTaglinePrompt`` uses the ``product`` variable to format its prompt.
+Define the Chain
+~~~~~~~~~~~~~~~~
 
-Define the Cascade
-~~~~~~~~~~~~~~~~~~
-
-We chain the ``Handler`` s using the ``>>`` operator to form a ``Cascade``. Then we start the ``Cascade`` by calling the ``start`` method with the initial ``Message`` "socks".
+We chain the ``Handler`` s using the ``>>`` operator to form a ``HandlerChain``. Then we start the chain by calling it with the initial ``Message`` "socks".
 
 .. code-block:: python
 
     name_and_tagline_generator = (
         CompanyNamePrompt() >> OpenAiLLM() >> CompanyTaglinePrompt() >> OpenAiLLM()
     )
-    print(asyncio.run(name_and_tagline_generator.start("socks")).last_msg)
+    print(asyncio.run(name_and_tagline_generator("socks")))
     # The Sock Spot: Step into Comfort
 

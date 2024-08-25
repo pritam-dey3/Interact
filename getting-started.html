@@ -14,7 +14,7 @@
         <script src="_static/jquery.js?v=5d32c60e"></script>
         <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
         <script src="_static/documentation_options.js?v=5929fcd5"></script>
-        <script src="_static/doctools.js?v=888ff710"></script>
+        <script src="_static/doctools.js?v=9a2dae69"></script>
         <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
@@ -49,7 +49,7 @@
 <li class="toctree-l2"><a class="reference internal" href="#example-usage">Example Usage</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#importing-neccessary-modules">Importing neccessary modules</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#define-handlers">Define handlers</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#define-the-cascade">Define the Cascade</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#define-the-chain">Define the Chain</a></li>
 </ul>
 </li>
 </ul>
@@ -90,7 +90,7 @@
 <ul class="simple">
 <li><p>Entities in an application communicate through <code class="docutils literal notranslate"><span class="pre">Message</span></code> s.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">Message</span></code> s are passed through <code class="docutils literal notranslate"><span class="pre">Handler</span></code> s that can modify (transform, format, etc.) the <code class="docutils literal notranslate"><span class="pre">Message</span></code>.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">Handler</span></code> s are chained together to form a <code class="docutils literal notranslate"><span class="pre">Cascade</span></code>. <code class="docutils literal notranslate"><span class="pre">Cascade</span></code> s hold a sequence of <code class="docutils literal notranslate"><span class="pre">Handler</span></code> s that are executed in order.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Handler</span></code> s are chained together to form a <code class="docutils literal notranslate"><span class="pre">HandlerChain</span></code>. <code class="docutils literal notranslate"><span class="pre">HandlerChain</span></code> s hold a sequence of <code class="docutils literal notranslate"><span class="pre">Handler</span></code> s that are executed in order.</p></li>
 </ul>
 </section>
 <section id="example-usage">
@@ -103,59 +103,51 @@
 <section id="importing-neccessary-modules">
 <h3>Importing neccessary modules<a class="headerlink" href="#importing-neccessary-modules" title="Link to this heading"></a></h3>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">asyncio</span>
-<span class="kn">import</span> <span class="nn">openai</span>
-<span class="kn">from</span> <span class="nn">interact.base</span> <span class="kn">import</span> <span class="n">Cascade</span><span class="p">,</span> <span class="n">Handler</span><span class="p">,</span> <span class="n">Message</span>
+
+<span class="kn">from</span> <span class="nn">dotenv</span> <span class="kn">import</span> <span class="n">load_dotenv</span>
+
+<span class="kn">from</span> <span class="nn">interact</span> <span class="kn">import</span> <span class="n">HandlerChain</span><span class="p">,</span> <span class="n">Message</span><span class="p">,</span> <span class="n">handler</span>
 <span class="kn">from</span> <span class="nn">interact.handlers</span> <span class="kn">import</span> <span class="n">OpenAiLLM</span>
 
-<span class="n">openai</span><span class="o">.</span><span class="n">api_key</span> <span class="o">=</span> <span class="s2">&quot;YOUR_API_KEY&quot;</span>
+<span class="n">load_dotenv</span><span class="p">()</span>  <span class="c1"># load openai api key from .env file</span>
 </pre></div>
 </div>
 </section>
 <section id="define-handlers">
 <h3>Define handlers<a class="headerlink" href="#define-handlers" title="Link to this heading"></a></h3>
 <p>We define two <code class="docutils literal notranslate"><span class="pre">Handler</span></code> s, <code class="docutils literal notranslate"><span class="pre">CompanyNamePrompt</span></code> and <code class="docutils literal notranslate"><span class="pre">CompanyTaglinePrompt</span></code> that will generate the prompts for the company name and tagline.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">CompanyNamePrompt</span><span class="p">(</span><span class="n">Handler</span><span class="p">):</span>
-    <span class="n">role</span> <span class="o">=</span> <span class="s2">&quot;CompanyNameGenerator&quot;</span>
-    <span class="n">prompt</span> <span class="o">=</span> <span class="p">(</span>
-        <span class="s2">&quot;What would be an appropriate name for a business specializing in </span><span class="si">{product}</span><span class="s2">?&quot;</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="nd">@handler</span>
+<span class="k">async</span> <span class="k">def</span> <span class="nf">company_name</span><span class="p">(</span><span class="n">msg</span><span class="p">:</span> <span class="n">Message</span><span class="p">,</span> <span class="n">chain</span><span class="p">:</span> <span class="n">HandlerChain</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="n">chain</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="s2">&quot;product&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">msg</span><span class="o">.</span><span class="n">primary</span>
+    <span class="k">return</span> <span class="p">(</span>
+        <span class="sa">f</span><span class="s2">&quot;What would be an appropriate name for a business specializing in </span><span class="si">{</span><span class="n">msg</span><span class="o">.</span><span class="n">primary</span><span class="si">}</span><span class="s2">?&quot;</span>
+        <span class="s2">&quot;Only mention the company name and nothing else.&quot;</span>
     <span class="p">)</span>
 
-    <span class="k">async</span> <span class="k">def</span> <span class="nf">process</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">msg</span><span class="p">:</span> <span class="n">Message</span><span class="p">,</span> <span class="n">csd</span><span class="p">:</span> <span class="n">Cascade</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-        <span class="n">new_msg</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">prompt</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">product</span><span class="o">=</span><span class="n">msg</span><span class="o">.</span><span class="n">primary</span><span class="p">)</span>
-        <span class="n">csd</span><span class="o">.</span><span class="n">vars</span><span class="p">[</span><span class="s2">&quot;product&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">msg</span><span class="o">.</span><span class="n">primary</span>
-        <span class="k">return</span> <span class="n">new_msg</span>
 
-
-<span class="k">class</span> <span class="nc">CompanyTaglinePrompt</span><span class="p">(</span><span class="n">Handler</span><span class="p">):</span>
-    <span class="n">role</span> <span class="o">=</span> <span class="s2">&quot;CompanyTaglineGenerator&quot;</span>
-    <span class="n">prompt</span> <span class="o">=</span> <span class="p">(</span>
-        <span class="s2">&quot;What would be an appropriate tagline for a business specializing in </span><span class="si">{product}</span><span class="s2">&quot;</span>
-        <span class="s2">&quot; and with company name </span><span class="si">{company_name}</span><span class="s2">?</span><span class="se">\n</span><span class="s2">Format your output in the following&quot;</span>
-        <span class="s2">&quot; format:</span><span class="se">\n</span><span class="s2">&lt;company_name&gt;: &lt;tagline&gt;&quot;</span>
+<span class="nd">@handler</span>
+<span class="k">async</span> <span class="k">def</span> <span class="nf">company_tagline</span><span class="p">(</span><span class="n">msg</span><span class="p">:</span> <span class="n">Message</span><span class="p">,</span> <span class="n">chain</span><span class="p">:</span> <span class="n">HandlerChain</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="k">return</span> <span class="p">(</span>
+        <span class="sa">f</span><span class="s2">&quot;What would be an appropriate tagline for a business specializing in </span><span class="si">{</span><span class="n">chain</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="s1">&#39;product&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="sa">f</span><span class="s2">&quot; and with company name </span><span class="si">{</span><span class="n">msg</span><span class="o">.</span><span class="n">primary</span><span class="si">}</span><span class="s2">?</span><span class="se">\n</span><span class="s2">Format your output in the following&quot;</span>
+        <span class="sa">f</span><span class="s2">&quot; format:</span><span class="se">\n</span><span class="si">{</span><span class="n">msg</span><span class="o">.</span><span class="n">primary</span><span class="si">}</span><span class="s2">: &lt;tagline&gt;&quot;</span>
     <span class="p">)</span>
-
-    <span class="k">async</span> <span class="k">def</span> <span class="nf">process</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">msg</span><span class="p">:</span> <span class="n">Message</span><span class="p">,</span> <span class="n">csd</span><span class="p">:</span> <span class="n">Cascade</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-        <span class="n">new_msg</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">prompt</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
-            <span class="n">company_name</span><span class="o">=</span><span class="n">msg</span><span class="o">.</span><span class="n">primary</span><span class="p">,</span> <span class="n">product</span><span class="o">=</span><span class="n">csd</span><span class="o">.</span><span class="n">vars</span><span class="p">[</span><span class="s2">&quot;product&quot;</span><span class="p">]</span>
-        <span class="p">)</span>
-        <span class="k">return</span> <span class="n">new_msg</span>
 </pre></div>
 </div>
-<p>Note that:</p>
-<ul class="simple">
-<li><p>The <code class="docutils literal notranslate"><span class="pre">process</span></code> method of the <code class="docutils literal notranslate"><span class="pre">Handler</span></code> s are used to modify the <code class="docutils literal notranslate"><span class="pre">Message</span></code> s.</p></li>
-<li><p>The <code class="docutils literal notranslate"><span class="pre">process</span></code> method of each <code class="docutils literal notranslate"><span class="pre">Handler</span></code> takes in the last <code class="docutils literal notranslate"><span class="pre">Message</span></code> and the <code class="docutils literal notranslate"><span class="pre">Cascade</span></code> which the <code class="docutils literal notranslate"><span class="pre">Handler</span></code> is a part of and currently executing in.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">CompanyNamePrompt</span></code> creates a variable <code class="docutils literal notranslate"><span class="pre">product</span></code> in the <code class="docutils literal notranslate"><span class="pre">Cascade</span></code>. Variables stored in <code class="docutils literal notranslate"><span class="pre">Cascade.vars</span></code> are accessible to all <code class="docutils literal notranslate"><span class="pre">Handler</span></code> s in the <em>current</em> <code class="docutils literal notranslate"><span class="pre">Cascade</span></code>.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">CompanyTaglinePrompt</span></code> uses the <code class="docutils literal notranslate"><span class="pre">product</span></code> variable to format its prompt.</p></li>
-</ul>
+<p>Note that:
+- Interact allows you to define simple async functions as <code class="docutils literal notranslate"><span class="pre">Handler</span></code> s. These functions are responsible for <em>transforming</em> the <code class="docutils literal notranslate"><span class="pre">Message``s.</span>
+<span class="pre">-</span> <span class="pre">You</span> <span class="pre">may</span> <span class="pre">choose</span> <span class="pre">to</span> <span class="pre">do</span> <span class="pre">anything</span> <span class="pre">inside</span> <span class="pre">these</span> <span class="pre">functions,</span> <span class="pre">including</span> <span class="pre">making</span> <span class="pre">API</span> <span class="pre">calls,</span> <span class="pre">formatting</span> <span class="pre">the</span> <span class="pre">prompts,</span> <span class="pre">anything</span> <span class="pre">your</span> <span class="pre">application</span> <span class="pre">needs</span> <span class="pre">to</span> <span class="pre">transform</span> <span class="pre">the</span> <span class="pre">input</span> <span class="pre">``Message</span></code>.
+- The functions are decorated with the <code class="docutils literal notranslate"><span class="pre">&#64;handler</span></code> decorator to indicate that they are <code class="docutils literal notranslate"><span class="pre">Handler</span></code> s. Under the hood, the decorator creates a <code class="docutils literal notranslate"><span class="pre">Handler</span></code> object from the function.
+- The input to the function is a <code class="docutils literal notranslate"><span class="pre">Message</span></code> and current <code class="docutils literal notranslate"><span class="pre">HandlerChain</span></code>. The <code class="docutils literal notranslate"><span class="pre">Message</span></code> is the resulting output from the previous <code class="docutils literal notranslate"><span class="pre">Handler</span></code> in the <code class="docutils literal notranslate"><span class="pre">HandlerChain</span></code>.
+- The current <code class="docutils literal notranslate"><span class="pre">HandlerChain</span></code> is passed to the function to allow handlers to create and access variables in the <code class="docutils literal notranslate"><span class="pre">HandlerChain</span></code>. This is useful when you want to share information across multiple handlers in a <code class="docutils literal notranslate"><span class="pre">HandlerChain</span></code>. Note in this example, in  <code class="docutils literal notranslate"><span class="pre">company_name</span></code> we store the product name in the variable <code class="docutils literal notranslate"><span class="pre">product</span></code> and accessed it later in <code class="docutils literal notranslate"><span class="pre">company_tagline</span></code> handler.</p>
 </section>
-<section id="define-the-cascade">
-<h3>Define the Cascade<a class="headerlink" href="#define-the-cascade" title="Link to this heading"></a></h3>
-<p>We chain the <code class="docutils literal notranslate"><span class="pre">Handler</span></code> s using the <code class="docutils literal notranslate"><span class="pre">&gt;&gt;</span></code> operator to form a <code class="docutils literal notranslate"><span class="pre">Cascade</span></code>. Then we start the <code class="docutils literal notranslate"><span class="pre">Cascade</span></code> by calling the <code class="docutils literal notranslate"><span class="pre">start</span></code> method with the initial <code class="docutils literal notranslate"><span class="pre">Message</span></code> “socks”.</p>
+<section id="define-the-chain">
+<h3>Define the Chain<a class="headerlink" href="#define-the-chain" title="Link to this heading"></a></h3>
+<p>We chain the <code class="docutils literal notranslate"><span class="pre">Handler</span></code> s using the <code class="docutils literal notranslate"><span class="pre">&gt;&gt;</span></code> operator to form a <code class="docutils literal notranslate"><span class="pre">HandlerChain</span></code>. Then we start the chain by calling it with the initial <code class="docutils literal notranslate"><span class="pre">Message</span></code> “socks”.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">name_and_tagline_generator</span> <span class="o">=</span> <span class="p">(</span>
     <span class="n">CompanyNamePrompt</span><span class="p">()</span> <span class="o">&gt;&gt;</span> <span class="n">OpenAiLLM</span><span class="p">()</span> <span class="o">&gt;&gt;</span> <span class="n">CompanyTaglinePrompt</span><span class="p">()</span> <span class="o">&gt;&gt;</span> <span class="n">OpenAiLLM</span><span class="p">()</span>
 <span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="n">asyncio</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">name_and_tagline_generator</span><span class="o">.</span><span class="n">start</span><span class="p">(</span><span class="s2">&quot;socks&quot;</span><span class="p">))</span><span class="o">.</span><span class="n">last_msg</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">asyncio</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">name_and_tagline_generator</span><span class="p">(</span><span class="s2">&quot;socks&quot;</span><span class="p">)))</span>
 <span class="c1"># The Sock Spot: Step into Comfort</span>
 </pre></div>
 </div>
