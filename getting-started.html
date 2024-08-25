@@ -91,8 +91,8 @@
 <div class="mermaid">
             graph LR
     subgraph &quot;HandlerChain&quot;
-        A[Handler 1] -- &quot;Message&quot; --- B[Handler 2]
-        B -- &quot;Message&quot; --- C[Handler 3]
+        A[Handler 1] --&gt;|Message| B[Handler 2]
+        B --&gt;|Message| C[Handler 3]
     end
     Input[&quot;Input (Message)&quot;] --&gt; A
     C --&gt; Output[&quot;Output (Message)&quot;]

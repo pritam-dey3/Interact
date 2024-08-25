@@ -10,8 +10,8 @@ Core Concept
 
     graph LR
         subgraph "HandlerChain"
-            A[Handler 1] -- "Message" --- B[Handler 2]
-            B -- "Message" --- C[Handler 3]
+            A[Handler 1] -->|Message| B[Handler 2]
+            B -->|Message| C[Handler 3]
         end
         Input["Input (Message)"] --> A
         C --> Output["Output (Message)"]
