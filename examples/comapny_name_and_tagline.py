@@ -40,7 +40,11 @@ def main():
         CompanyNamePrompt() >> OpenAiLLM() >> CompanyTaglinePrompt() >> OpenAiLLM()
     )
 
-    print(asyncio.run(name_and_tagline_generator("socks")))
+    res, history = asyncio.run(name_and_tagline_generator("bike", return_history=True))
+    for msg in history:
+        print(msg.sender)
+        print(msg)
+    print(res)
     # >> The Sock Spot: Step into Comfort
 
 

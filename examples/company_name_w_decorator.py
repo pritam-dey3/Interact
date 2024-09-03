@@ -31,7 +31,10 @@ def main():
         company_name_prompt >> OpenAiLLM() >> company_tagline_prompt >> OpenAiLLM()
     )
 
-    res = asyncio.run(name_and_tagline_generator.run("socks"))
+    res, history = asyncio.run(name_and_tagline_generator("bike", return_history=True))
+    for msg in history:
+        print(msg.sender)
+        print(msg)
     print(res)
 
 

@@ -60,13 +60,13 @@ dev = ["freezegun (>=1.0,<2.0)", "pytest (>=6.0)", "pytest-cov"]
 
 [[package]]
 name = "certifi"
-version = "2024.7.4"
+version = "2024.8.30"
 description = "Python package for providing Mozilla's CA Bundle."
 optional = false
 python-versions = ">=3.6"
 files = [
-    {file = "certifi-2024.7.4-py3-none-any.whl", hash = "sha256:c198e21b1289c2ab85ee4e67bb4b4ef3ead0892059901a8d5b622f24a1101e90"},
-    {file = "certifi-2024.7.4.tar.gz", hash = "sha256:5a1e7645bc0ec61a09e26c36f6106dd4cf40c6db3a1fb6352b0244e7fb057c7b"},
+    {file = "certifi-2024.8.30-py3-none-any.whl", hash = "sha256:922820b53db7a7257ffbda3f597266d435245903d80737e34f8a45ff3e3230d8"},
+    {file = "certifi-2024.8.30.tar.gz", hash = "sha256:bec941d2aa8195e248a60b31ff9f0558284cf01a52591ceda73ea9afffd69fd9"},
 ]
 
 [[package]]
@@ -216,6 +216,44 @@ files = [
 test = ["pytest (>=6)"]
 
 [[package]]
+name = "faiss-cpu"
+version = "1.8.0"
+description = "A library for efficient similarity search and clustering of dense vectors."
+optional = true
+python-versions = ">=3.8"
+files = [
+    {file = "faiss-cpu-1.8.0.tar.gz", hash = "sha256:3ee1549491728f37b65267c192a94661a907154a8ae0546ad50a564b8be0d82e"},
+    {file = "faiss_cpu-1.8.0-cp310-cp310-macosx_10_14_x86_64.whl", hash = "sha256:134a064c7411acf7d1d863173a9d2605c5a59bd573639ab39a5ded5ca983b1b2"},
+    {file = "faiss_cpu-1.8.0-cp310-cp310-macosx_11_0_arm64.whl", hash = "sha256:ba8e6202d561ac57394c9d691ff17f8fa6eb9a077913a993fce0a154ec0176f1"},
+    {file = "faiss_cpu-1.8.0-cp310-cp310-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:a66e9fa7b70556a39681f06e0652f4124c8ddb0a1924afe4f0e40b6924dc845b"},
+    {file = "faiss_cpu-1.8.0-cp310-cp310-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:51aaef5a1255d0ea88ea7e52a2415f98c5dd2dd9cec10348d55136541eeec99f"},
+    {file = "faiss_cpu-1.8.0-cp310-cp310-win_amd64.whl", hash = "sha256:38152761242870ec7019e0397cbd0ed0b0716562029ce41a71bb38448bd6d5bc"},
+    {file = "faiss_cpu-1.8.0-cp311-cp311-macosx_10_14_x86_64.whl", hash = "sha256:c9e6ad94b86626be1a0faff3e53c4ca169eba88aa156d7e90c5a2e9ba30558fb"},
+    {file = "faiss_cpu-1.8.0-cp311-cp311-macosx_11_0_arm64.whl", hash = "sha256:4601dbd81733bf1bc3bff690aac981289fb386dc8e60d0c4eec8a37ba6856d20"},
+    {file = "faiss_cpu-1.8.0-cp311-cp311-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:fa943d3b5e8c5c77cdd629d9c3c6f78d7da616e586fdd1b94aecbf2e5fa9ba06"},
+    {file = "faiss_cpu-1.8.0-cp311-cp311-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:b644b366c3b239b34fa3e08bf65bfc78a24eda1e1ea5b2b6d9be3e8fc73d8179"},
+    {file = "faiss_cpu-1.8.0-cp311-cp311-win_amd64.whl", hash = "sha256:f85ecf3514850f93985be238351f5a70736133cfae784b372640aa17c6343a1b"},
+    {file = "faiss_cpu-1.8.0-cp312-cp312-macosx_10_14_x86_64.whl", hash = "sha256:61abc0129a357ac00f17f5167f14dff41480de2cc852f306c3d4cd36b893ccbd"},
+    {file = "faiss_cpu-1.8.0-cp312-cp312-macosx_11_0_arm64.whl", hash = "sha256:b788186d6eb94e6333e1aa8bb6c84b66e967458ecdd1cee22e16f04c43ee674c"},
+    {file = "faiss_cpu-1.8.0-cp312-cp312-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:5658d90a202c62e4a69c5b065785e9ddcaf6986cb395c16afed8dbe4c58c31a2"},
+    {file = "faiss_cpu-1.8.0-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:5d460a372efce547e53d3c47d2c2a8a90b186ad245969048c10c1d7a1e5cf21b"},
+    {file = "faiss_cpu-1.8.0-cp312-cp312-win_amd64.whl", hash = "sha256:9e6520324f0a6764dd267b3c32c76958bf2b1ec36752950f6fab31a7295980a0"},
+    {file = "faiss_cpu-1.8.0-cp38-cp38-macosx_10_14_x86_64.whl", hash = "sha256:fc44be179d5b7f690484ef0d0caf817fea2698a5275a0c7fb6cbf406e5b2e4d1"},
+    {file = "faiss_cpu-1.8.0-cp38-cp38-macosx_11_0_arm64.whl", hash = "sha256:bbd6f0bc2e1424a12dc7e19d2cc95b53124867966b21110d26f909227e7ed1f1"},
+    {file = "faiss_cpu-1.8.0-cp38-cp38-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:06e7add0c8a06ce8fb0443c38fcaf49c45fb74527ea633b819e56452608e64f5"},
+    {file = "faiss_cpu-1.8.0-cp38-cp38-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:b864e23c1817fa6cfe9bbec096fd7140d596002934f71aa89b196ffb1b9cd846"},
+    {file = "faiss_cpu-1.8.0-cp38-cp38-win_amd64.whl", hash = "sha256:655433755845adbb6f0961e2f8980703640cb9faa96f1cd1ea190252149e0d0a"},
+    {file = "faiss_cpu-1.8.0-cp39-cp39-macosx_10_14_x86_64.whl", hash = "sha256:e81fc376a3bcda213ffb395dda1018c953ce927c587731ad582f4e6c2b225363"},
+    {file = "faiss_cpu-1.8.0-cp39-cp39-macosx_11_0_arm64.whl", hash = "sha256:8c6fa6b7eaf558307b4ab118a236e8d1da79a8685222928e4dd52e277dba144a"},
+    {file = "faiss_cpu-1.8.0-cp39-cp39-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:652f6812ef2e8b0f9b18209828c590bc618aca82e7f1c1b1888f52928258e406"},
+    {file = "faiss_cpu-1.8.0-cp39-cp39-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:304da4e0d19044374b63a5b6467028572eac4bd3f32bc9e8783d800a03fb1f02"},
+    {file = "faiss_cpu-1.8.0-cp39-cp39-win_amd64.whl", hash = "sha256:cb475d3f25f08c97ac64dfe026f113e2aeb9829b206b3b046256c3b40dd7eb62"},
+]
+
+[package.dependencies]
+numpy = "*"
+
+[[package]]
 name = "h11"
 version = "0.14.0"
 description = "A pure-Python, bring-your-own-I/O implementation of HTTP/1.1"
@@ -249,13 +287,13 @@ trio = ["trio (>=0.22.0,<0.26.0)"]
 
 [[package]]
 name = "httpx"
-version = "0.27.0"
+version = "0.27.2"
 description = "The next generation HTTP client."
 optional = false
 python-versions = ">=3.8"
 files = [
-    {file = "httpx-0.27.0-py3-none-any.whl", hash = "sha256:71d5465162c13681bff01ad59b2cc68dd838ea1f10e51574bac27103f00c91a5"},
-    {file = "httpx-0.27.0.tar.gz", hash = "sha256:a0cb88a46f32dc874e04ee956e4c2764aba2aa228f650b06788ba6bda2962ab5"},
+    {file = "httpx-0.27.2-py3-none-any.whl", hash = "sha256:7bb2708e112d8fdd7829cd4243970f0c223274051cb35ee80c03301ee29a3df0"},
+    {file = "httpx-0.27.2.tar.gz", hash = "sha256:f7c2be1d2f3c3c3160d441802406b206c2b76f5947b11115e6df10c6c65e66c2"},
 ]
 
 [package.dependencies]
@@ -270,6 +308,7 @@ brotli = ["brotli", "brotlicffi"]
 cli = ["click (==8.*)", "pygments (==2.*)", "rich (>=10,<14)"]
 http2 = ["h2 (>=3,<5)"]
 socks = ["socksio (==1.*)"]
+zstd = ["zstandard (>=0.18.0)"]
 
 [[package]]
 name = "idna"
@@ -537,13 +576,13 @@ files = [
 
 [[package]]
 name = "openai"
-version = "1.42.0"
+version = "1.43.0"
 description = "The official Python library for the openai API"
 optional = false
 python-versions = ">=3.7.1"
 files = [
-    {file = "openai-1.42.0-py3-none-any.whl", hash = "sha256:dc91e0307033a4f94931e5d03cc3b29b9717014ad5e73f9f2051b6cb5eda4d80"},
-    {file = "openai-1.42.0.tar.gz", hash = "sha256:c9d31853b4e0bc2dc8bd08003b462a006035655a701471695d0bfdc08529cde3"},
+    {file = "openai-1.43.0-py3-none-any.whl", hash = "sha256:1a748c2728edd3a738a72a0212ba866f4fdbe39c9ae03813508b267d45104abe"},
+    {file = "openai-1.43.0.tar.gz", hash = "sha256:e607aff9fc3e28eade107e5edd8ca95a910a4b12589336d3cbb6bfe2ac306b3c"},
 ]
 
 [package.dependencies]
@@ -1173,7 +1212,10 @@ h2 = ["h2 (>=4,<5)"]
 socks = ["pysocks (>=1.5.6,!=1.5.7,<2.0)"]
 zstd = ["zstandard (>=0.18.0)"]
 
+[extras]
+faiss = ["faiss-cpu"]
+
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.10"
-content-hash = "b789dbd6d6a87bfcf72296436fd982148e57cecae0654cd15dd4518c9bea676d"
+content-hash = "98da5940625dbc011854d00fdd3f161af3c361fdec10a379fe856a51c1b3004f"
