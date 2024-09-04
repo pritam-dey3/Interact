@@ -6,6 +6,8 @@ from openai.types.chat.completion_create_params import CompletionCreateParams
 
 from interact import Handler, HandlerChain, Message
 from interact.exceptions import HandlerError
+from interact.retrieval import Record, VectorDB
+from typing import Callable
 
 
 class OpenAiLLM(Handler):
@@ -14,7 +16,7 @@ class OpenAiLLM(Handler):
     def __init__(
         self, role: str | None = None, model: str = "gpt-4o-mini", **openai_kwgs
     ) -> None:
-        self.role = role if role else ""
+        self.role = role if role else "OpenAiLLM"
         self.model = model
         self.client = AsyncOpenAI(**openai_kwgs)
 
@@ -30,8 +32,6 @@ class OpenAiLLM(Handler):
         Returns:
             Message: response from OpenAI chatGPT.
         """
-        if not self.role:
-            self.role = msg.sender
 
         api_key = chain.variables.get("api_key", None)
         if api_key:
@@ -181,3 +181,49 @@ class BatchInputOpenAiLLM(Handler):
         }
         line_s = json.dumps(line)
         return line_s
+
+
+class SimilarityRetriever(Handler):
+    """Initialize a Retriever object.
+
+    Args:
+        index_db (VectorDB): The index database.
+        k (int, optional): The number of records to retrieve. Defaults to 5.
+        join_policy (str | Callable[[list[Record]], str | Message], optional): The policy for joining the retrieved records. It can be a string or a callable function. Defaults to "\\\\n\\\\n".
+
+            - If it is a string, the records will be joined using the string as a separator.
+            - If it is a callable function, the function should accept a list of records and return a str or a Message.
+
+
+    """
+
+    role = "retriever"
+
+    def __init__(
+        self,
+        index_db: VectorDB,
+        k: int = 5,
+        join_policy: str | Callable[[list[Record]], str | Message] = "\n\n",
+    ) -> None:
+        self.index_db = index_db
+        self.k = k
+        self.join_policy = join_policy
+
+    async def process(self, msg: Message, chain: HandlerChain) -> str | Message:
+        """
+        Process the given message and retrieve similar records.
+        Args:
+            msg (Message): The message to process.
+            chain (HandlerChain): The handler chain.
+        Returns:
+            str | Message: The joined records as a string or a message.
+        Raises:
+            ValueError: If the join policy is invalid.
+        """
+        records = self.index_db.query(msg, k=self.k)
+        if callable(self.join_policy):
+            return self.join_policy(records)
+        elif isinstance(self.join_policy, str):
+            return self.join_policy.join(str(record) for record in records)
+        else:
+            raise ValueError("Invalid join policy.")

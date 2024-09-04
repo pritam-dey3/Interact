@@ -13,6 +13,8 @@ Welcome to Interact's documentation!
     getting-started
     base
     handlers
+    retrieval
+    examples_toc
 
 Interact
 --------
