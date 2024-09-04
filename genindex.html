@@ -46,6 +46,8 @@
 <li class="toctree-l1"><a class="reference internal" href="getting-started.html">Getting Started</a></li>
 <li class="toctree-l1"><a class="reference internal" href="base.html">Base Classes</a></li>
 <li class="toctree-l1"><a class="reference internal" href="handlers.html">Handler Classes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="retrieval.html">Retrieval</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples_toc.html">Examples</a></li>
 </ul>
 
         </div>
@@ -77,19 +79,31 @@
 <div class="genindex-jumpbox">
  <a href="#A"><strong>A</strong></a>
  | <a href="#B"><strong>B</strong></a>
+ | <a href="#C"><strong>C</strong></a>
+ | <a href="#F"><strong>F</strong></a>
  | <a href="#H"><strong>H</strong></a>
  | <a href="#I"><strong>I</strong></a>
  | <a href="#L"><strong>L</strong></a>
  | <a href="#M"><strong>M</strong></a>
  | <a href="#O"><strong>O</strong></a>
  | <a href="#P"><strong>P</strong></a>
+ | <a href="#Q"><strong>Q</strong></a>
  | <a href="#R"><strong>R</strong></a>
  | <a href="#S"><strong>S</strong></a>
+ | <a href="#T"><strong>T</strong></a>
  | <a href="#V"><strong>V</strong></a>
  
 </div>
 <h2 id="A">A</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="retrieval.html#interact.retrieval.faiss.FaissIndexDB.add_records">add_records() (interact.retrieval.faiss.FaissIndexDB method)</a>
+
+      <ul>
+        <li><a href="retrieval.html#interact.retrieval.VectorDB.add_records">(interact.retrieval.VectorDB method)</a>
+</li>
+      </ul></li>
+  </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="handlers.html#interact.handlers.AssignRole">AssignRole (class in interact.handlers)</a>
 </li>
@@ -100,6 +114,22 @@
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="handlers.html#interact.handlers.BatchInputOpenAiLLM">BatchInputOpenAiLLM (class in interact.handlers)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="C">C</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="retrieval.html#interact.retrieval.VectorDB.collect_records">collect_records() (interact.retrieval.VectorDB method)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="F">F</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="retrieval.html#interact.retrieval.faiss.FaissIndexDB">FaissIndexDB (class in interact.retrieval.faiss)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -127,6 +157,8 @@
 <h2 id="I">I</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="retrieval.html#interact.retrieval.faiss.FaissIndexDB.index_db">index_db (interact.retrieval.faiss.FaissIndexDB attribute)</a>
+</li>
       <li>
     interact.base
 
@@ -134,13 +166,27 @@
         <li><a href="base.html#module-interact.base">module</a>
 </li>
       </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li>
     interact.handlers
 
       <ul>
         <li><a href="handlers.html#module-interact.handlers">module</a>
+</li>
+      </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li>
+    interact.retrieval
+
+      <ul>
+        <li><a href="retrieval.html#module-interact.retrieval">module</a>
+</li>
+      </ul></li>
+      <li>
+    interact.retrieval.faiss
+
+      <ul>
+        <li><a href="retrieval.html#module-interact.retrieval.faiss">module</a>
 </li>
       </ul></li>
   </ul></td>
@@ -159,6 +205,8 @@
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="base.html#interact.base.Message">Message (class in interact.base)</a>
 </li>
+      <li><a href="retrieval.html#interact.retrieval.SimpleRecord.metadata">metadata (interact.retrieval.SimpleRecord attribute)</a>
+</li>
       <li>
     module
 
@@ -166,6 +214,10 @@
         <li><a href="base.html#module-interact.base">interact.base</a>
 </li>
         <li><a href="handlers.html#module-interact.handlers">interact.handlers</a>
+</li>
+        <li><a href="retrieval.html#module-interact.retrieval">interact.retrieval</a>
+</li>
+        <li><a href="retrieval.html#module-interact.retrieval.faiss">interact.retrieval.faiss</a>
 </li>
       </ul></li>
   </ul></td>
@@ -193,6 +245,20 @@
 </li>
         <li><a href="handlers.html#interact.handlers.RetryHandlerChain.process">(interact.handlers.RetryHandlerChain method)</a>
 </li>
+        <li><a href="handlers.html#interact.handlers.SimilarityRetriever.process">(interact.handlers.SimilarityRetriever method)</a>
+</li>
+      </ul></li>
+  </ul></td>
+</tr></table>
+
+<h2 id="Q">Q</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="retrieval.html#interact.retrieval.faiss.FaissIndexDB.query">query() (interact.retrieval.faiss.FaissIndexDB method)</a>
+
+      <ul>
+        <li><a href="retrieval.html#interact.retrieval.VectorDB.query">(interact.retrieval.VectorDB method)</a>
+</li>
       </ul></li>
   </ul></td>
 </tr></table>
@@ -200,12 +266,20 @@
 <h2 id="R">R</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="retrieval.html#interact.retrieval.Record">Record (class in interact.retrieval)</a>
+</li>
+      <li><a href="retrieval.html#interact.retrieval.VectorDB.refresh_records">refresh_records() (interact.retrieval.VectorDB method)</a>
+</li>
       <li><a href="handlers.html#interact.handlers.RetryHandlerChain">RetryHandlerChain (class in interact.handlers)</a>
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="base.html#interact.base.Handler.role">role (interact.base.Handler attribute)</a>
+
+      <ul>
+        <li><a href="handlers.html#interact.handlers.SimilarityRetriever.role">(interact.handlers.SimilarityRetriever attribute)</a>
 </li>
+      </ul></li>
       <li><a href="base.html#interact.base.HandlerChain.run">run() (interact.base.HandlerChain method)</a>
 </li>
   </ul></td>
@@ -214,7 +288,21 @@
 <h2 id="S">S</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="handlers.html#interact.handlers.SimilarityRetriever">SimilarityRetriever (class in interact.handlers)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="retrieval.html#interact.retrieval.SimpleRecord">SimpleRecord (class in interact.retrieval)</a>
+</li>
       <li><a href="base.html#interact.base.HandlerChain.step">step (interact.base.HandlerChain attribute)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="T">T</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="retrieval.html#interact.retrieval.SimpleRecord.text">text (interact.retrieval.SimpleRecord attribute)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -223,6 +311,10 @@
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="base.html#interact.base.HandlerChain.variables">variables (interact.base.HandlerChain attribute)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="retrieval.html#interact.retrieval.VectorDB">VectorDB (class in interact.retrieval)</a>
 </li>
   </ul></td>
 </tr></table>

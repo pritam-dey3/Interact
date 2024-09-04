@@ -1,0 +1,13 @@
+Similarity for RAG Applications
+===============================
+
+.. automodule:: interact.similarity
+   :members:
+   :exclude-members: model_fields, model_config, model_computed_fields, dict, Config
+   :undoc-members:
+   :show-inheritance:
+
+.. automodule:: interact.similarity.faiss
+   :members:
+   :undoc-members:
+   :show-inheritance:
