@@ -15,10 +15,12 @@ jobs:
         with:
           python-version: '3.12' # Specify Python 3.12
 
-      - name: Install dependencies 📦
+      - name: Install pipx and Poetry 🔧
         run: |
-          python -m pip install --upgrade pip
-          pip install sphinx
+            python3 -m pip install --user pipx
+            python3 -m pipx ensurepath
+            pipx install poetry
+            poetry install --no-root --only dev
 
       - name: Build docs 📚
         run: |
