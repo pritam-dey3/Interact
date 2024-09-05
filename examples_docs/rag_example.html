@@ -84,94 +84,89 @@
              
   <section id="rag-example">
 <h1>rag_example<a class="headerlink" href="#rag-example" title="Link to this heading"></a></h1>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># We will use the RAG model to generate a prompt for a given input and then use a similarity retriever to find similar sentences from a dataset.</span>
-<span class="c1"># This example uses the `SentenceTransformer` library to extract embedding vectors from the sentences.</span>
-
-<span class="kn">import</span> <span class="nn">asyncio</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">asyncio</span>
 
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
-<span class="kn">from</span> <span class="nn">interact</span> <span class="kn">import</span> <span class="n">handler</span>
+<span class="kn">from</span> <span class="nn">openai</span> <span class="kn">import</span> <span class="n">OpenAI</span>
+
+<span class="kn">from</span> <span class="nn">interact</span> <span class="kn">import</span> <span class="n">HandlerChain</span><span class="p">,</span> <span class="n">Message</span><span class="p">,</span> <span class="n">handler</span>
 <span class="kn">from</span> <span class="nn">interact.handlers</span> <span class="kn">import</span> <span class="n">OpenAiLLM</span><span class="p">,</span> <span class="n">SimilarityRetriever</span>
 <span class="kn">from</span> <span class="nn">interact.retrieval</span> <span class="kn">import</span> <span class="n">SimpleRecord</span>
 <span class="kn">from</span> <span class="nn">interact.retrieval.faiss</span> <span class="kn">import</span> <span class="n">FaissIndexDB</span>
-<span class="kn">from</span> <span class="nn">sentence_transformers</span> <span class="kn">import</span> <span class="n">SentenceTransformer</span>
+<span class="kn">from</span> <span class="nn">functools</span> <span class="kn">import</span> <span class="n">partial</span>
+
+<span class="n">client</span> <span class="o">=</span> <span class="n">OpenAI</span><span class="p">()</span>
 
 
-<span class="k">def</span> <span class="nf">get_sentences</span><span class="p">(</span><span class="n">use_urls</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
-    <span class="k">if</span> <span class="n">use_urls</span><span class="p">:</span>
-        <span class="kn">from</span> <span class="nn">io</span> <span class="kn">import</span> <span class="n">StringIO</span>
+<span class="c1"># an example dataset to demonstrate rag</span>
+<span class="n">article</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;In 2032, a dog named Timmy made history by becoming the first canine to land on Mars. At the age of 5, Timmy was specially selected for the mission due to his calm temperament and ability to adapt to new environments.</span>
 
-        <span class="kn">import</span> <span class="nn">requests</span>
+<span class="s2">Timmy traveled aboard the SpaceX Falcon X7, a rocket designed for deep space exploration. The spacecraft featured advanced life support systems and a speed of 22,000 miles per hour, ensuring Timmy’s safe journey to the red planet.</span>
 
-        <span class="n">urls</span> <span class="o">=</span> <span class="p">[</span>
-            <span class="s2">&quot;https://raw.githubusercontent.com/brmson/dataset-sts/master/data/sts/semeval-sts/2012/MSRpar.train.tsv&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;https://raw.githubusercontent.com/brmson/dataset-sts/master/data/sts/semeval-sts/2012/MSRpar.test.tsv&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;https://raw.githubusercontent.com/brmson/dataset-sts/master/data/sts/semeval-sts/2012/OnWN.test.tsv&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;https://raw.githubusercontent.com/brmson/dataset-sts/master/data/sts/semeval-sts/2013/OnWN.test.tsv&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;https://raw.githubusercontent.com/brmson/dataset-sts/master/data/sts/semeval-sts/2014/OnWN.test.tsv&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;https://raw.githubusercontent.com/brmson/dataset-sts/master/data/sts/semeval-sts/2014/images.test.tsv&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;https://raw.githubusercontent.com/brmson/dataset-sts/master/data/sts/semeval-sts/2015/images.test.tsv&quot;</span><span class="p">,</span>
-        <span class="p">]</span>
+<span class="s2">The mission took approximately seven months, and Timmy spent most of the trip in a custom-built habitat. This habitat included a climate-controlled sleeping area and robotic arms for providing food and water.</span>
 
-        <span class="n">sentences</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="c1"># each of these dataset have the same structure, so we loop through each creating our sentences data</span>
-        <span class="n">url_datasets</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="k">for</span> <span class="n">url</span> <span class="ow">in</span> <span class="n">urls</span><span class="p">:</span>
-            <span class="n">res</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
-            <span class="c1"># extract to dataframe</span>
-            <span class="n">url_data</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span>
-                <span class="n">StringIO</span><span class="p">(</span><span class="n">res</span><span class="o">.</span><span class="n">text</span><span class="p">),</span> <span class="n">sep</span><span class="o">=</span><span class="s2">&quot;</span><span class="se">\t</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">header</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">on_bad_lines</span><span class="o">=</span><span class="s2">&quot;warn&quot;</span>
-            <span class="p">)</span>
-            <span class="n">url_datasets</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">url_data</span><span class="p">)</span>
-        <span class="n">data</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">url_datasets</span><span class="p">)</span>
-        <span class="n">data</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="s2">&quot;dummy_strings.csv&quot;</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="s2">Upon landing on Mars in February 2033, Timmy became an international sensation, with scientists closely monitoring his behavior in the planet&#39;s 38</span><span class="si">% lo</span><span class="s2">wer gravity. Equipped with a lightweight, pressurized dog suit, Timmy was able to explore the Martian surface safely, with built-in oxygen tanks, temperature regulation, and radiation shielding to protect him from the planet’s extreme conditions.</span>
 
-    <span class="n">data</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s2">&quot;dummy_strings.csv&quot;</span><span class="p">)</span>
-    <span class="n">sentences</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;1&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
-    <span class="n">sentences</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;2&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">tolist</span><span class="p">())</span>
-    <span class="n">sentences</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">sentences</span><span class="p">))</span>
-    <span class="k">return</span> <span class="n">sentences</span>
+<span class="s2">On March 12, 2033, just a month after his landing, Timmy completed his first full exploration of a Martian crater, gathering data on how living beings adapt to the environment. His successful adaptation to Mars led NASA to announce plans to involve service animals in human missions by 2035.&quot;&quot;&quot;</span>
 
+<span class="n">paragraphs</span> <span class="o">=</span> <span class="n">article</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n\n</span><span class="s2">&quot;</span><span class="p">)</span>
 
-<span class="c1"># create a dataset of sentences</span>
-<span class="n">sentences</span> <span class="o">=</span> <span class="n">get_sentences</span><span class="p">(</span><span class="n">use_urls</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Number of sentences: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">sentences</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-<span class="n">dataset</span> <span class="o">=</span> <span class="p">[</span><span class="n">SimpleRecord</span><span class="p">(</span><span class="n">s</span><span class="p">)</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">sentences</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="nb">str</span><span class="p">)]</span>
-
-<span class="c1"># load encoder model</span>
-<span class="n">model</span> <span class="o">=</span> <span class="n">SentenceTransformer</span><span class="p">(</span><span class="s2">&quot;nomic-ai/nomic-embed-text-v1&quot;</span><span class="p">,</span> <span class="n">trust_remote_code</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">dataset</span> <span class="o">=</span> <span class="p">[</span><span class="n">SimpleRecord</span><span class="p">(</span><span class="n">s</span><span class="p">)</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">paragraphs</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="nb">str</span><span class="p">)]</span>
 
 
 <span class="k">def</span> <span class="nf">encode</span><span class="p">(</span><span class="n">texts</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">dim</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">512</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
-    <span class="k">return</span> <span class="n">model</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="n">texts</span><span class="p">,</span> <span class="n">convert_to_numpy</span><span class="o">=</span><span class="kc">True</span><span class="p">)[:,</span> <span class="p">:</span><span class="n">dim</span><span class="p">]</span>  <span class="c1"># type: ignore</span>
+    <span class="n">response</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">embeddings</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="nb">input</span><span class="o">=</span><span class="n">texts</span><span class="p">,</span> <span class="n">model</span><span class="o">=</span><span class="s2">&quot;text-embedding-3-small&quot;</span><span class="p">)</span>
+    <span class="n">emb_matrix</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">((</span><span class="mi">0</span><span class="p">,</span> <span class="n">dim</span><span class="p">))</span>
+    <span class="k">for</span> <span class="n">resp_emb</span> <span class="ow">in</span> <span class="n">response</span><span class="o">.</span><span class="n">data</span><span class="p">:</span>
+        <span class="n">emb_matrix</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">r_</span><span class="p">[</span>
+            <span class="n">emb_matrix</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">resp_emb</span><span class="o">.</span><span class="n">embedding</span><span class="p">[:</span><span class="n">dim</span><span class="p">])[</span><span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">,</span> <span class="p">:]</span>
+        <span class="p">]</span>
+    <span class="k">return</span> <span class="n">emb_matrix</span>
 
 
-<span class="c1"># create faiss index</span>
-<span class="n">index_db</span> <span class="o">=</span> <span class="n">FaissIndexDB</span><span class="p">(</span>
-    <span class="p">(</span><span class="mi">512</span><span class="p">,</span> <span class="s2">&quot;IDMap,IVF30,PQ8&quot;</span><span class="p">),</span> <span class="n">dataset</span><span class="o">=</span><span class="n">dataset</span><span class="p">,</span> <span class="n">encoder</span><span class="o">=</span><span class="n">encode</span><span class="p">,</span> <span class="n">train</span><span class="o">=</span><span class="kc">True</span>
-<span class="p">)</span>
-
-
-<span class="c1"># define pipeline</span>
 <span class="nd">@handler</span>
-<span class="k">async</span> <span class="k">def</span> <span class="nf">create_prompt</span><span class="p">(</span><span class="n">msg</span><span class="p">,</span> <span class="n">chain</span><span class="p">):</span>
-    <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;Describe how do you recognize </span><span class="si">{</span><span class="n">msg</span><span class="si">}</span><span class="s2"> without mentioning it&#39;s name in one sentence.&quot;</span>
+<span class="k">async</span> <span class="k">def</span> <span class="nf">enhance_query</span><span class="p">(</span><span class="n">msg</span><span class="p">:</span> <span class="n">Message</span><span class="p">,</span> <span class="n">chain</span><span class="p">:</span> <span class="n">HandlerChain</span><span class="p">):</span>
+    <span class="n">chain</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="s2">&quot;query&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">msg</span>
+    <span class="k">return</span> <span class="p">(</span>
+        <span class="s2">&quot;The following query is about a dog named Timmy who went to Mars. Rewrite the query to make it more verbose and easier to understand in one sentence.</span><span class="se">\n</span><span class="s2">&quot;</span>
+        <span class="sa">f</span><span class="s2">&quot;Original query: </span><span class="si">{</span><span class="n">msg</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="s2">&quot;Only rewrite the query in one sentence. Do not include any additional information, salutations, or sign-offs.&quot;</span>
+    <span class="p">)</span>
 
 
-<span class="n">pipe</span> <span class="o">=</span> <span class="p">(</span>
-    <span class="n">create_prompt</span>
-    <span class="o">&gt;&gt;</span> <span class="n">OpenAiLLM</span><span class="p">()</span>
-    <span class="o">&gt;&gt;</span> <span class="n">SimilarityRetriever</span><span class="p">(</span><span class="n">index_db</span><span class="p">,</span> <span class="n">k</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">join_policy</span><span class="o">=</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">----x----</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
-<span class="p">)</span>
+<span class="nd">@handler</span>
+<span class="k">async</span> <span class="k">def</span> <span class="nf">answer</span><span class="p">(</span><span class="n">msg</span><span class="p">:</span> <span class="n">Message</span><span class="p">,</span> <span class="n">chain</span><span class="p">:</span> <span class="n">HandlerChain</span><span class="p">):</span>
+    <span class="n">query</span> <span class="o">=</span> <span class="n">chain</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="s2">&quot;query&quot;</span><span class="p">]</span>
+    <span class="n">prompt</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="s2">&quot;Answer the given query from the context given below. Do not include any information that is not present in the context.</span><span class="se">\n</span><span class="s2">&quot;</span>
+        <span class="sa">f</span><span class="s2">&quot;--- Context start---</span><span class="se">\n</span><span class="si">{</span><span class="n">msg</span><span class="si">}</span><span class="se">\n</span><span class="s2">--- Context end ---</span><span class="se">\n\n</span><span class="s2">&quot;</span>
+        <span class="sa">f</span><span class="s2">&quot;Query: </span><span class="si">{</span><span class="n">query</span><span class="si">}</span><span class="s2">&quot;</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">prompt</span>
 
 
-<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
-    <span class="n">res</span> <span class="o">=</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">pipe</span><span class="p">(</span><span class="s2">&quot;a bmw car&quot;</span><span class="p">))</span>
-    <span class="nb">print</span><span class="p">(</span><span class="n">res</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="s2">&quot;</span><span class="se">\n\n</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">main</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="mi">512</span><span class="p">):</span>
+    <span class="n">index_db</span> <span class="o">=</span> <span class="n">FaissIndexDB</span><span class="p">(</span>
+        <span class="p">(</span><span class="n">dim</span><span class="p">,</span> <span class="s2">&quot;IDMap,Flat&quot;</span><span class="p">),</span> <span class="n">dataset</span><span class="o">=</span><span class="n">dataset</span><span class="p">,</span> <span class="n">encoder</span><span class="o">=</span><span class="n">partial</span><span class="p">(</span><span class="n">encode</span><span class="p">,</span> <span class="n">dim</span><span class="o">=</span><span class="n">dim</span><span class="p">),</span>
+        <span class="n">train</span><span class="o">=</span><span class="kc">True</span>
+    <span class="p">)</span>
+
+    <span class="n">pipe</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">enhance_query</span>
+        <span class="o">&gt;&gt;</span> <span class="n">OpenAiLLM</span><span class="p">()</span>
+        <span class="o">&gt;&gt;</span> <span class="n">SimilarityRetriever</span><span class="p">(</span><span class="n">index_db</span><span class="p">,</span> <span class="n">k</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">join_policy</span><span class="o">=</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">----x----</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="o">&gt;&gt;</span> <span class="n">answer</span>
+        <span class="o">&gt;&gt;</span> <span class="n">OpenAiLLM</span><span class="p">()</span>
+    <span class="p">)</span>
+    <span class="n">res</span> <span class="o">=</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">pipe</span><span class="p">(</span><span class="s2">&quot;When did Timmy land on Mars?&quot;</span><span class="p">))</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">res</span><span class="p">)</span>
 
     <span class="k">for</span> <span class="n">msg</span> <span class="ow">in</span> <span class="n">pipe</span><span class="o">.</span><span class="n">history</span><span class="p">:</span>
         <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">msg</span><span class="o">.</span><span class="n">sender</span><span class="si">}</span><span class="s2">:</span><span class="se">\n</span><span class="si">{</span><span class="n">msg</span><span class="o">.</span><span class="n">primary</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="n">main</span><span class="p">()</span>
 </pre></div>
 </div>
 </section>
