@@ -4,7 +4,7 @@ from typing import Callable
 
 import faiss
 import numpy as np
-from faiss.swigfaiss import Index
+from faiss import Index
 
 from interact import Message
 from interact.retrieval import Record, VectorDB
