@@ -1,10 +1,10 @@
 from unittest.mock import patch
-from importlib.util import module_from_spec, spec_from_file_location
 import numpy as np
-from pathlib import Path
 
 from interact import handler
-import pytest
+
+import os
+os.environ["OPENAI_API_KEY"] = "bad_api_to_avoid_network_calls"
 
 
 @handler
@@ -231,16 +231,13 @@ class dummy_client:
 
 def test_rag_example():
     with patch("interact.handlers.OpenAiLLM", type(dummy_openai)):
-        spec = spec_from_file_location("rag_example", "examples/rag_example.py")
-        assert spec is not None, "Could not load rag_example"
-        rag = module_from_spec(spec)
-        assert spec.loader is not None, "Could not load rag_example"
-        spec.loader.exec_module(rag)
 
         with (
             patch("examples.rag_example.encode", dummy_encoder),
             patch("examples.rag_example.client", dummy_client()),
+            # patch("examples.rag_example.client.embeddings.create", dummy_encoder),
         ):
+            import examples.rag_example as rag
             rag.main(dim=32)
 
 
