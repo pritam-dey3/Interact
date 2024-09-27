@@ -1,24 +1,34 @@
 import json
+from typing import Callable, Iterable, TypeVar
 
 from openai import AsyncOpenAI
 from openai._utils import async_transform
+from openai.types.chat.chat_completion import ChatCompletion
+from openai.types.chat.chat_completion_content_part_param import (
+    ChatCompletionContentPartParam,
+)
 from openai.types.chat.completion_create_params import CompletionCreateParams
+from pydantic import BaseModel
 
 from interact import Handler, HandlerChain, Message
 from interact.exceptions import HandlerError
 from interact.retrieval import Record, VectorDB
-from typing import Callable
 
 
 class OpenAiLLM(Handler):
     """Handler for generating a response using OpenAI's Language Model."""
 
     def __init__(
-        self, role: str | None = None, model: str = "gpt-4o-mini", **openai_kwgs
+        self,
+        role: str | None = None,
+        model: str = "gpt-4o-mini",
+        structure: type[BaseModel] | None = None,
+        **openai_kwgs,
     ) -> None:
         self.role = role if role else "OpenAiLLM"
         self.model = model
         self.client = AsyncOpenAI(**openai_kwgs)
+        self.structure = structure
 
     async def process(self, msg: Message, chain: HandlerChain) -> Message:
         """Generate a response using the message passed to this handler. If OpenAI api
@@ -56,15 +66,42 @@ class OpenAiLLM(Handler):
         if "model" not in completion_config and self.model:
             completion_config["model"] = self.model
 
-        res = await self.client.chat.completions.create(
-            **completion_config,
-            messages=[
-                {"role": "user", "content": content},
-            ],
-        )
+        res = await self.request(completion_config, content)
 
         reply = ". ".join([str(ch.message.content) for ch in res.choices])
-        return Message(primary=reply, sender=self.role, openai_response=dict(res))
+        if self.structure:
+            response = Message(
+                primary=reply,
+                sender=self.role,
+                openai_response=dict(res),
+                structure=res.choices[0].message.parsed,  # type: ignore
+            )
+        else:
+            response = Message(
+                primary=reply, sender=self.role, openai_response=dict(res)
+            )
+        return response
+
+    async def request(
+        self,
+        completion_config: dict,
+        content: str | Iterable[ChatCompletionContentPartParam],
+    ) -> ChatCompletion:
+        if self.structure:
+            completion_config["response_format"] = self.structure
+            return await self.client.beta.chat.completions.parse(
+                **completion_config,
+                messages=[
+                    {"role": "user", "content": content},
+                ],
+            )
+        else:
+            return await self.client.chat.completions.create(
+                **completion_config,
+                messages=[
+                    {"role": "user", "content": content},
+                ],
+            )
 
 
 class AssignRole(Handler):
@@ -183,17 +220,21 @@ class BatchInputOpenAiLLM(Handler):
         return line_s
 
 
+T = TypeVar("T", bound=Record)
+
+
 class SimilarityRetriever(Handler):
     """Initialize a Retriever object.
 
     Args:
         index_db (VectorDB): The index database.
         k (int, optional): The number of records to retrieve. Defaults to 5.
+        reranker (Callable[[list[Record]], list[Record]] | None, optional): The reranker function. Defaults to None.
+        k_reranked (int, optional): The number of records to keep after reranking. Defaults to 3.
         join_policy (str | Callable[[list[Record]], str | Message], optional): The policy for joining the retrieved records. It can be a string or a callable function. Defaults to "\\\\n\\\\n".
 
             - If it is a string, the records will be joined using the string as a separator.
             - If it is a callable function, the function should accept a list of records and return a str or a Message.
-
 
     """
 
@@ -201,13 +242,17 @@ class SimilarityRetriever(Handler):
 
     def __init__(
         self,
-        index_db: VectorDB,
+        index_db: VectorDB[T],
         k: int = 5,
-        join_policy: str | Callable[[list[Record]], str | Message] = "\n\n",
+        reranker: Callable[[Message, list[T]], list[T]] | None = None,
+        k_reranked: int = 3,
+        join_policy: str | Callable[[list[T]], str | Message] = "\n\n",
     ) -> None:
         self.index_db = index_db
         self.k = k
         self.join_policy = join_policy
+        self.reranker = reranker
+        self.k_reranked = k_reranked
 
     async def process(self, msg: Message, chain: HandlerChain) -> str | Message:
         """
@@ -221,6 +266,10 @@ class SimilarityRetriever(Handler):
             ValueError: If the join policy is invalid.
         """
         records = self.index_db.query(msg, k=self.k)
+        chain.variables["query"] = msg
+        if self.reranker:
+            records = self.reranker(msg, records)
+            records = records[: self.k_reranked]
         if callable(self.join_policy):
             return self.join_policy(records)
         elif isinstance(self.join_policy, str):

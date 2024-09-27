@@ -3,7 +3,7 @@ authors = ["Pritam Dey <pritam.pritamdey.984@gmail.com>"]
 description = "Interact with LLMs"
 name = "interact"
 readme = "README.md"
-version = "0.6.0"
+version = "0.6.1"
 
 [build-system]
 build-backend = "poetry.core.masonry.api"

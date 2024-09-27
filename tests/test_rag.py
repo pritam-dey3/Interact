@@ -1,10 +1,8 @@
 from unittest.mock import patch
+
 import numpy as np
 
 from interact import handler
-
-import os
-os.environ["OPENAI_API_KEY"] = "bad_api_to_avoid_network_calls"
 
 
 @handler
@@ -12,7 +10,7 @@ async def dummy_openai(msg, chain):
     return msg
 
 
-def dummy_encoder(texts: list[str], dim: int = 512) -> np.ndarray:
+def dummy_encoder(texts: list[str], mode, dim: int = 512) -> np.ndarray:
     if len(texts) == 1:
         return np.array([
             [
@@ -230,17 +228,15 @@ class dummy_client:
 
 
 def test_rag_example():
-    with patch("interact.handlers.OpenAiLLM", type(dummy_openai)):
+    with (
+        patch("interact.handlers.OpenAiLLM", type(dummy_openai)),
+        patch("examples.rag_example.encode", dummy_encoder),
+        patch("examples.rag_example.client", dummy_client()),
+    ):
+        import examples.rag_example as rag
 
-        with (
-            patch("examples.rag_example.encode", dummy_encoder),
-            patch("examples.rag_example.client", dummy_client()),
-            # patch("examples.rag_example.client.embeddings.create", dummy_encoder),
-        ):
-            import examples.rag_example as rag
-            rag.main(dim=32)
+        rag.main(dim=32)
 
 
 if __name__ == "__main__":
-
     test_rag_example()

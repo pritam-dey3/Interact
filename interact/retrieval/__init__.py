@@ -1,6 +1,7 @@
-from typing import Annotated, Protocol, Self, Sequence
+from typing import Annotated, Literal, Protocol, Sequence, TypeVar
 
-from pydantic import BaseModel, model_validator, ConfigDict
+import numpy as np
+from pydantic import BaseModel, ConfigDict, model_validator
 
 from interact import Message
 
@@ -9,13 +10,14 @@ SemanticTextStr = Annotated[str, "SemanticText"]
 
 class Record(BaseModel):
     """A class representing a record with semantic fields."""
+
     model_config = ConfigDict(frozen=True)
 
     # class Config:
     #     frozen = True
 
     @model_validator(mode="after")
-    def _post_root(self) -> Self:
+    def _post_root(self):
         self._semantic_fields = []
         for field_name, field in self.model_fields.items():
             if len(field.metadata) > 0 and field.metadata[0] == "SemanticText":
@@ -30,7 +32,9 @@ class Record(BaseModel):
         if len(semantic_texts) == 1:
             return next(iter(semantic_texts.values()))
         else:
-            return "\n".join([f"{attr}: {text}" for attr, text in semantic_texts.items()])
+            return "\n".join([
+                f"{attr}: {text}" for attr, text in semantic_texts.items()
+            ])
 
 
 class SimpleRecord(Record):
@@ -46,20 +50,33 @@ class SimpleRecord(Record):
         super().__init__(text=text, metadata=data)  # type: ignore
 
 
-class VectorDB(Protocol):
+class EncoderType(Protocol):
+    """A protocol for an encoder function."""
+
+    def __call__(
+        self, texts: list[str], mode: Literal["passage", "query"]
+    ) -> np.ndarray: ...
+
+
+T = TypeVar("T", bound=Record)
+
+
+class VectorDB(Protocol[T]):
     """A protocol for a vector database."""
 
-    _records_store: list[Record] = []
+    encoder: EncoderType
+
+    _records_store: list[T] = []
     _strings_store: list[str] = []
     _strings_to_records: dict[int, int] = {}
 
-    def add_records(self, dataset: list[Record]) -> None:
+    def add_records(self, dataset: list[T]) -> None:
         raise NotImplementedError
 
-    def query(self, query: Message, k: int) -> list[Record]:
+    def query(self, query: Message, k: int) -> list[T]:
         raise NotImplementedError
 
-    def refresh_records(self, dataset: Sequence[Record]) -> dict[int, str]:
+    def refresh_records(self, dataset: Sequence[T]) -> dict[int, str]:
         """
         Refreshes the records in the dataset and updates the internal data stores.
 
@@ -95,7 +112,7 @@ class VectorDB(Protocol):
             for string_id in range(last_string_id, len(self._strings_store))
         }
 
-    def collect_records(self, string_ids: list[int]) -> list[Record]:
+    def collect_records(self, string_ids: list[int]) -> list[T]:
         """
         Gathers the records corresponding to the given string IDs.
 

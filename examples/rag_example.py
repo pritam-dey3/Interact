@@ -1,4 +1,6 @@
 import asyncio
+from functools import partial
+from typing import Literal
 
 import numpy as np
 from openai import OpenAI
@@ -7,7 +9,6 @@ from interact import HandlerChain, Message, handler
 from interact.handlers import OpenAiLLM, SimilarityRetriever
 from interact.retrieval import SimpleRecord
 from interact.retrieval.faiss import FaissIndexDB
-from functools import partial
 
 client = OpenAI()
 
@@ -28,7 +29,12 @@ paragraphs = article.split("\n\n")
 dataset = [SimpleRecord(s) for s in paragraphs if isinstance(s, str)]
 
 
-def encode(texts: list[str], dim: int = 512) -> np.ndarray:
+# the encoder function must take `texts` (list of strings to encode) and `mode` (either "passage" or "query") as arguments
+# the mode argument is required since many text embedding models can produce different embeddings based on whether the input is a passage or a query
+# in this example, we use the text-embedding-3-small model from OpenAI, which does not require the mode argument
+def encode(
+    texts: list[str], mode: Literal["passage", "query"], dim: int = 512
+) -> np.ndarray:
     response = client.embeddings.create(input=texts, model="text-embedding-3-small")
     emb_matrix = np.ndarray((0, dim))
     for resp_emb in response.data:
@@ -61,8 +67,10 @@ async def answer(msg: Message, chain: HandlerChain):
 
 def main(dim=512):
     index_db = FaissIndexDB(
-        (dim, "IDMap,Flat"), dataset=dataset, encoder=partial(encode, dim=dim),
-        train=True
+        (dim, "IDMap,Flat"),
+        dataset=dataset,
+        encoder=partial(encode, dim=dim),
+        train=True,
     )
 
     pipe = (
