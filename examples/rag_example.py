@@ -10,8 +10,8 @@ from interact.handlers import OpenAiLLM, SimilarityRetriever
 from interact.retrieval import SimpleRecord
 from interact.retrieval.faiss import FaissIndexDB
 
-client = OpenAI()
-
+import os
+os.environ["OPENAI_API_KEY"] = "bad_key"
 
 # an example dataset to demonstrate rag
 article = """In 2032, a dog named Timmy made history by becoming the first canine to land on Mars. At the age of 5, Timmy was specially selected for the mission due to his calm temperament and ability to adapt to new environments.
@@ -35,6 +35,7 @@ dataset = [SimpleRecord(s) for s in paragraphs if isinstance(s, str)]
 def encode(
     texts: list[str], mode: Literal["passage", "query"], dim: int = 512
 ) -> np.ndarray:
+    client = OpenAI()
     response = client.embeddings.create(input=texts, model="text-embedding-3-small")
     emb_matrix = np.ndarray((0, dim))
     for resp_emb in response.data:

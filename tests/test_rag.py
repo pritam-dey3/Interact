@@ -231,7 +231,6 @@ def test_rag_example():
     with (
         patch("interact.handlers.OpenAiLLM", type(dummy_openai)),
         patch("examples.rag_example.encode", dummy_encoder),
-        patch("examples.rag_example.client", dummy_client()),
     ):
         import examples.rag_example as rag
 
