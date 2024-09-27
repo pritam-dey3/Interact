@@ -96,8 +96,8 @@
 <span class="kn">from</span> <span class="nn">interact.retrieval</span> <span class="kn">import</span> <span class="n">SimpleRecord</span>
 <span class="kn">from</span> <span class="nn">interact.retrieval.faiss</span> <span class="kn">import</span> <span class="n">FaissIndexDB</span>
 
-<span class="n">client</span> <span class="o">=</span> <span class="n">OpenAI</span><span class="p">()</span>
-
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">&quot;OPENAI_API_KEY&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;bad_key&quot;</span>
 
 <span class="c1"># an example dataset to demonstrate rag</span>
 <span class="n">article</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;In 2032, a dog named Timmy made history by becoming the first canine to land on Mars. At the age of 5, Timmy was specially selected for the mission due to his calm temperament and ability to adapt to new environments.</span>
@@ -121,6 +121,7 @@
 <span class="k">def</span> <span class="nf">encode</span><span class="p">(</span>
     <span class="n">texts</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">mode</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;passage&quot;</span><span class="p">,</span> <span class="s2">&quot;query&quot;</span><span class="p">],</span> <span class="n">dim</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">512</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+    <span class="n">client</span> <span class="o">=</span> <span class="n">OpenAI</span><span class="p">()</span>
     <span class="n">response</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">embeddings</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="nb">input</span><span class="o">=</span><span class="n">texts</span><span class="p">,</span> <span class="n">model</span><span class="o">=</span><span class="s2">&quot;text-embedding-3-small&quot;</span><span class="p">)</span>
     <span class="n">emb_matrix</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">((</span><span class="mi">0</span><span class="p">,</span> <span class="n">dim</span><span class="p">))</span>
     <span class="k">for</span> <span class="n">resp_emb</span> <span class="ow">in</span> <span class="n">response</span><span class="o">.</span><span class="n">data</span><span class="p">:</span>
