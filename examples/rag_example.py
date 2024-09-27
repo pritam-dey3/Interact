@@ -10,9 +10,6 @@ from interact.handlers import OpenAiLLM, SimilarityRetriever
 from interact.retrieval import SimpleRecord
 from interact.retrieval.faiss import FaissIndexDB
 
-import os
-os.environ["OPENAI_API_KEY"] = "bad_key"
-
 # an example dataset to demonstrate rag
 article = """In 2032, a dog named Timmy made history by becoming the first canine to land on Mars. At the age of 5, Timmy was specially selected for the mission due to his calm temperament and ability to adapt to new environments.
 
