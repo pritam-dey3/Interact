@@ -85,6 +85,8 @@
   <section id="rag-example">
 <h1>rag_example<a class="headerlink" href="#rag-example" title="Link to this heading"></a></h1>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">asyncio</span>
+<span class="kn">from</span> <span class="nn">functools</span> <span class="kn">import</span> <span class="n">partial</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Literal</span>
 
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">from</span> <span class="nn">openai</span> <span class="kn">import</span> <span class="n">OpenAI</span>
@@ -93,7 +95,6 @@
 <span class="kn">from</span> <span class="nn">interact.handlers</span> <span class="kn">import</span> <span class="n">OpenAiLLM</span><span class="p">,</span> <span class="n">SimilarityRetriever</span>
 <span class="kn">from</span> <span class="nn">interact.retrieval</span> <span class="kn">import</span> <span class="n">SimpleRecord</span>
 <span class="kn">from</span> <span class="nn">interact.retrieval.faiss</span> <span class="kn">import</span> <span class="n">FaissIndexDB</span>
-<span class="kn">from</span> <span class="nn">functools</span> <span class="kn">import</span> <span class="n">partial</span>
 
 <span class="n">client</span> <span class="o">=</span> <span class="n">OpenAI</span><span class="p">()</span>
 
@@ -114,7 +115,12 @@
 <span class="n">dataset</span> <span class="o">=</span> <span class="p">[</span><span class="n">SimpleRecord</span><span class="p">(</span><span class="n">s</span><span class="p">)</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">paragraphs</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="nb">str</span><span class="p">)]</span>
 
 
-<span class="k">def</span> <span class="nf">encode</span><span class="p">(</span><span class="n">texts</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">dim</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">512</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="c1"># the encoder function must take `texts` (list of strings to encode) and `mode` (either &quot;passage&quot; or &quot;query&quot;) as arguments</span>
+<span class="c1"># the mode argument is required since many text embedding models can produce different embeddings based on whether the input is a passage or a query</span>
+<span class="c1"># in this example, we use the text-embedding-3-small model from OpenAI, which does not require the mode argument</span>
+<span class="k">def</span> <span class="nf">encode</span><span class="p">(</span>
+    <span class="n">texts</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">mode</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;passage&quot;</span><span class="p">,</span> <span class="s2">&quot;query&quot;</span><span class="p">],</span> <span class="n">dim</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">512</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
     <span class="n">response</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">embeddings</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="nb">input</span><span class="o">=</span><span class="n">texts</span><span class="p">,</span> <span class="n">model</span><span class="o">=</span><span class="s2">&quot;text-embedding-3-small&quot;</span><span class="p">)</span>
     <span class="n">emb_matrix</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">((</span><span class="mi">0</span><span class="p">,</span> <span class="n">dim</span><span class="p">))</span>
     <span class="k">for</span> <span class="n">resp_emb</span> <span class="ow">in</span> <span class="n">response</span><span class="o">.</span><span class="n">data</span><span class="p">:</span>
@@ -147,8 +153,10 @@
 
 <span class="k">def</span> <span class="nf">main</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="mi">512</span><span class="p">):</span>
     <span class="n">index_db</span> <span class="o">=</span> <span class="n">FaissIndexDB</span><span class="p">(</span>
-        <span class="p">(</span><span class="n">dim</span><span class="p">,</span> <span class="s2">&quot;IDMap,Flat&quot;</span><span class="p">),</span> <span class="n">dataset</span><span class="o">=</span><span class="n">dataset</span><span class="p">,</span> <span class="n">encoder</span><span class="o">=</span><span class="n">partial</span><span class="p">(</span><span class="n">encode</span><span class="p">,</span> <span class="n">dim</span><span class="o">=</span><span class="n">dim</span><span class="p">),</span>
-        <span class="n">train</span><span class="o">=</span><span class="kc">True</span>
+        <span class="p">(</span><span class="n">dim</span><span class="p">,</span> <span class="s2">&quot;IDMap,Flat&quot;</span><span class="p">),</span>
+        <span class="n">dataset</span><span class="o">=</span><span class="n">dataset</span><span class="p">,</span>
+        <span class="n">encoder</span><span class="o">=</span><span class="n">partial</span><span class="p">(</span><span class="n">encode</span><span class="p">,</span> <span class="n">dim</span><span class="o">=</span><span class="n">dim</span><span class="p">),</span>
+        <span class="n">train</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
     <span class="p">)</span>
 
     <span class="n">pipe</span> <span class="o">=</span> <span class="p">(</span>
