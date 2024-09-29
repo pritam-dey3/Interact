@@ -26,7 +26,14 @@ Installation
 
 .. code-block:: bash
 
-   pip install git+https://github.com/pritam-dey3/interact
+   pip install -U "interact @ git+https://github.com/pritam-dey3/Interact.git"
+
+or, if you use faiss for similarity search
+
+.. code-block:: bash
+    
+    pip install -U "interact[faiss] @ git+https://github.com/pritam-dey3/Interact.git"
+
 
 Start learning about Interact by reading the :doc:`getting-started` guide.
 
