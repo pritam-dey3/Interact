@@ -65,6 +65,10 @@ class OpenAiLLM(Handler):
         completion_config = msg.info.get("completion_config", {})
         if "model" not in completion_config and self.model:
             completion_config["model"] = self.model
+        if "response_format" in completion_config:
+            structure = completion_config["response_format"]
+            if not isinstance(structure, dict):
+                self.structure = structure
 
         res = await self.request(completion_config, content)
 
@@ -267,6 +271,7 @@ class SimilarityRetriever(Handler):
         """
         records = self.index_db.query(msg, k=self.k)
         chain.variables["query"] = msg
+        chain.variables["records"] = records
         if self.reranker:
             records = self.reranker(msg, records)
             records = records[: self.k_reranked]
