@@ -19,7 +19,7 @@
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="Similarity for RAG Applications" href="similarity.html" />
+    <link rel="next" title="Retrieval" href="retrieval.html" />
     <link rel="prev" title="Base Classes" href="base.html" /> 
 </head>
 
@@ -57,6 +57,7 @@
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#interact.handlers.OpenAiLLM"><code class="docutils literal notranslate"><span class="pre">OpenAiLLM</span></code></a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#interact.handlers.OpenAiLLM.process"><code class="docutils literal notranslate"><span class="pre">OpenAiLLM.process()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#interact.handlers.OpenAiLLM.request"><code class="docutils literal notranslate"><span class="pre">OpenAiLLM.request()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#interact.handlers.RetryHandlerChain"><code class="docutils literal notranslate"><span class="pre">RetryHandlerChain</span></code></a><ul>
@@ -70,7 +71,7 @@
 </li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="similarity.html">Similarity for RAG Applications</a></li>
+<li class="toctree-l1"><a class="reference internal" href="retrieval.html">Retrieval</a></li>
 <li class="toctree-l1"><a class="reference internal" href="examples_toc.html">Examples</a></li>
 </ul>
 
@@ -173,7 +174,7 @@ in the HandlerChain.variables dictionary.</p>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="interact.handlers.OpenAiLLM">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">interact.handlers.</span></span><span class="sig-name descname"><span class="pre">OpenAiLLM</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">role</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'gpt-4o-mini'</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">openai_kwgs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#interact.handlers.OpenAiLLM" title="Link to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">interact.handlers.</span></span><span class="sig-name descname"><span class="pre">OpenAiLLM</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">role</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'gpt-4o-mini'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">structure</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">openai_kwgs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#interact.handlers.OpenAiLLM" title="Link to this definition"></a></dt>
 <dd><p>Bases: <a class="reference internal" href="base.html#interact.base.Handler" title="interact.base.Handler"><code class="xref py py-class docutils literal notranslate"><span class="pre">Handler</span></code></a></p>
 <p>Handler for generating a response using OpenAI’s Language Model.</p>
 <dl class="field-list simple">
@@ -181,6 +182,7 @@ in the HandlerChain.variables dictionary.</p>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>role</strong> (<em>str</em>)</p></li>
 <li><p><strong>model</strong> (<em>str</em>)</p></li>
+<li><p><strong>structure</strong> (<em>type</em><em>[</em><em>BaseModel</em><em>] </em><em>| </em><em>None</em>)</p></li>
 </ul>
 </dd>
 </dl>
@@ -202,6 +204,22 @@ in the HandlerChain.variables dictionary.</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p><a class="reference internal" href="base.html#interact.base.Message" title="interact.base.Message">Message</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="interact.handlers.OpenAiLLM.request">
+<em class="property"><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">request</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">completion_config</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">content</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#interact.handlers.OpenAiLLM.request" title="Link to this definition"></a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>completion_config</strong> (<em>dict</em>)</p></li>
+<li><p><strong>content</strong> (<em>str</em><em> | </em><em>Iterable</em><em>[</em><em>ChatCompletionContentPartTextParam</em><em> | </em><em>ChatCompletionContentPartImageParam</em><em> | </em><em>ChatCompletionContentPartInputAudioParam</em><em>]</em>)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><em>ChatCompletion</em></p>
 </dd>
 </dl>
 </dd></dl>
@@ -249,15 +267,17 @@ in the HandlerChain.variables dictionary.</p>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="interact.handlers.SimilarityRetriever">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">interact.handlers.</span></span><span class="sig-name descname"><span class="pre">SimilarityRetriever</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">index_db</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">k</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">join_policy</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'\n\n'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#interact.handlers.SimilarityRetriever" title="Link to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">interact.handlers.</span></span><span class="sig-name descname"><span class="pre">SimilarityRetriever</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">index_db</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">k</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reranker</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">k_reranked</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">3</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">join_policy</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'\n\n'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#interact.handlers.SimilarityRetriever" title="Link to this definition"></a></dt>
 <dd><p>Bases: <a class="reference internal" href="base.html#interact.base.Handler" title="interact.base.Handler"><code class="xref py py-class docutils literal notranslate"><span class="pre">Handler</span></code></a></p>
 <p>Initialize a Retriever object.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>index_db</strong> (<em>VectorDB</em>) – The index database.</p></li>
+<li><p><strong>index_db</strong> (<a class="reference internal" href="retrieval.html#interact.retrieval.VectorDB" title="interact.retrieval.VectorDB"><em>VectorDB</em></a>) – The index database.</p></li>
 <li><p><strong>k</strong> (<em>int</em><em>, </em><em>optional</em>) – The number of records to retrieve. Defaults to 5.</p></li>
-<li><p><strong>join_policy</strong> (<em>str</em><em> | </em><em>Callable</em><em>[</em><em>[</em><em>list</em><em>[</em><em>Record</em><em>]</em><em>]</em><em>, </em><em>str</em><em> | </em><a class="reference internal" href="base.html#interact.base.Message" title="interact.base.Message"><em>Message</em></a><em>]</em><em>, </em><em>optional</em>) – <p>The policy for joining the retrieved records. It can be a string or a callable function. Defaults to “\n\n”.</p>
+<li><p><strong>reranker</strong> (<em>Callable</em><em>[</em><em>[</em><em>list</em><em>[</em><a class="reference internal" href="retrieval.html#interact.retrieval.Record" title="interact.retrieval.Record"><em>Record</em></a><em>]</em><em>]</em><em>, </em><em>list</em><em>[</em><a class="reference internal" href="retrieval.html#interact.retrieval.Record" title="interact.retrieval.Record"><em>Record</em></a><em>]</em><em>] </em><em>| </em><em>None</em><em>, </em><em>optional</em>) – The reranker function. Defaults to None.</p></li>
+<li><p><strong>k_reranked</strong> (<em>int</em><em>, </em><em>optional</em>) – The number of records to keep after reranking. Defaults to 3.</p></li>
+<li><p><strong>join_policy</strong> (<em>str</em><em> | </em><em>Callable</em><em>[</em><em>[</em><em>list</em><em>[</em><a class="reference internal" href="retrieval.html#interact.retrieval.Record" title="interact.retrieval.Record"><em>Record</em></a><em>]</em><em>]</em><em>, </em><em>str</em><em> | </em><a class="reference internal" href="base.html#interact.base.Message" title="interact.base.Message"><em>Message</em></a><em>]</em><em>, </em><em>optional</em>) – <p>The policy for joining the retrieved records. It can be a string or a callable function. Defaults to “\n\n”.</p>
 <ul>
 <li><p>If it is a string, the records will be joined using the string as a separator.</p></li>
 <li><p>If it is a callable function, the function should accept a list of records and return a str or a Message.</p></li>
@@ -307,7 +327,7 @@ in the HandlerChain.variables dictionary.</p>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
         <a href="base.html" class="btn btn-neutral float-left" title="Base Classes" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="similarity.html" class="btn btn-neutral float-right" title="Similarity for RAG Applications" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="retrieval.html" class="btn btn-neutral float-right" title="Retrieval" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>

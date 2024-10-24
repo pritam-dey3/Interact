@@ -48,6 +48,7 @@
 <li class="toctree-l1"><a class="reference internal" href="base.html">Base Classes</a></li>
 <li class="toctree-l1"><a class="reference internal" href="handlers.html">Handler Classes</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Retrieval</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#interact.retrieval.EncoderType"><code class="docutils literal notranslate"><span class="pre">EncoderType</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="#interact.retrieval.Record"><code class="docutils literal notranslate"><span class="pre">Record</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="#interact.retrieval.SimpleRecord"><code class="docutils literal notranslate"><span class="pre">SimpleRecord</span></code></a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#interact.retrieval.SimpleRecord.metadata"><code class="docutils literal notranslate"><span class="pre">SimpleRecord.metadata</span></code></a></li>
@@ -57,6 +58,7 @@
 <li class="toctree-l2"><a class="reference internal" href="#interact.retrieval.VectorDB"><code class="docutils literal notranslate"><span class="pre">VectorDB</span></code></a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#interact.retrieval.VectorDB.add_records"><code class="docutils literal notranslate"><span class="pre">VectorDB.add_records()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#interact.retrieval.VectorDB.collect_records"><code class="docutils literal notranslate"><span class="pre">VectorDB.collect_records()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#interact.retrieval.VectorDB.encoder"><code class="docutils literal notranslate"><span class="pre">VectorDB.encoder</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#interact.retrieval.VectorDB.query"><code class="docutils literal notranslate"><span class="pre">VectorDB.query()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#interact.retrieval.VectorDB.refresh_records"><code class="docutils literal notranslate"><span class="pre">VectorDB.refresh_records()</span></code></a></li>
 </ul>
@@ -99,6 +101,13 @@
   <section id="module-interact.retrieval">
 <span id="retrieval"></span><h1>Retrieval<a class="headerlink" href="#module-interact.retrieval" title="Link to this heading"></a></h1>
 <dl class="py class">
+<dt class="sig sig-object py" id="interact.retrieval.EncoderType">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">interact.retrieval.</span></span><span class="sig-name descname"><span class="pre">EncoderType</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#interact.retrieval.EncoderType" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Protocol</span></code></p>
+<p>A protocol for an encoder function.</p>
+</dd></dl>
+
+<dl class="py class">
 <dt class="sig sig-object py" id="interact.retrieval.Record">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">interact.retrieval.</span></span><span class="sig-name descname"><span class="pre">Record</span></span><a class="headerlink" href="#interact.retrieval.Record" title="Link to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">BaseModel</span></code></p>
@@ -134,14 +143,14 @@
 <dl class="py class">
 <dt class="sig sig-object py" id="interact.retrieval.VectorDB">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">interact.retrieval.</span></span><span class="sig-name descname"><span class="pre">VectorDB</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#interact.retrieval.VectorDB" title="Link to this definition"></a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Protocol</span></code></p>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Protocol</span></code>[<code class="xref py py-obj docutils literal notranslate"><span class="pre">T</span></code>]</p>
 <p>A protocol for a vector database.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="interact.retrieval.VectorDB.add_records">
 <span class="sig-name descname"><span class="pre">add_records</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dataset</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#interact.retrieval.VectorDB.add_records" title="Link to this definition"></a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>dataset</strong> (<em>list</em><em>[</em><a class="reference internal" href="#interact.retrieval.Record" title="interact.retrieval.Record"><em>Record</em></a><em>]</em>)</p>
+<dd class="field-odd"><p><strong>dataset</strong> (<em>list</em><em>[</em><em>T</em><em>]</em>)</p>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
 <dd class="field-even"><p>None</p>
@@ -166,6 +175,11 @@
 </dl>
 </dd></dl>
 
+<dl class="py attribute">
+<dt class="sig sig-object py" id="interact.retrieval.VectorDB.encoder">
+<span class="sig-name descname"><span class="pre">encoder</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#interact.retrieval.EncoderType" title="interact.retrieval.EncoderType"><span class="pre">EncoderType</span></a></em><a class="headerlink" href="#interact.retrieval.VectorDB.encoder" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
 <dl class="py method">
 <dt class="sig sig-object py" id="interact.retrieval.VectorDB.query">
 <span class="sig-name descname"><span class="pre">query</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">query</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">k</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#interact.retrieval.VectorDB.query" title="Link to this definition"></a></dt>
@@ -177,7 +191,7 @@
 </ul>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p>list[<a class="reference internal" href="#interact.retrieval.Record" title="interact.retrieval.Record"><em>Record</em></a>]</p>
+<dd class="field-even"><p>list[<em>T</em>]</p>
 </dd>
 </dl>
 </dd></dl>
@@ -204,13 +218,13 @@
 <dl class="py class" id="module-interact.retrieval.faiss">
 <dt class="sig sig-object py" id="interact.retrieval.faiss.FaissIndexDB">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">interact.retrieval.faiss.</span></span><span class="sig-name descname"><span class="pre">FaissIndexDB</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">index</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dataset</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">encoder</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">train</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#interact.retrieval.faiss.FaissIndexDB" title="Link to this definition"></a></dt>
-<dd><p>Bases: <a class="reference internal" href="#interact.retrieval.VectorDB" title="interact.retrieval.VectorDB"><code class="xref py py-class docutils literal notranslate"><span class="pre">VectorDB</span></code></a></p>
+<dd><p>Bases: <a class="reference internal" href="#interact.retrieval.VectorDB" title="interact.retrieval.VectorDB"><code class="xref py py-class docutils literal notranslate"><span class="pre">VectorDB</span></code></a>[<code class="xref py py-obj docutils literal notranslate"><span class="pre">T</span></code>]</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>index</strong> (<em>Index</em><em> | </em><em>tuple</em><em>[</em><em>int</em><em>, </em><em>str</em><em>]</em>)</p></li>
-<li><p><strong>dataset</strong> (<em>Sequence</em><em>[</em><a class="reference internal" href="#interact.retrieval.Record" title="interact.retrieval.Record"><em>Record</em></a><em>]</em>)</p></li>
-<li><p><strong>encoder</strong> (<em>Callable</em><em>[</em><em>[</em><em>list</em><em>[</em><em>str</em><em>]</em><em>]</em><em>, </em><em>ndarray</em><em>]</em>)</p></li>
+<li><p><strong>dataset</strong> (<em>Sequence</em><em>[</em><em>T</em><em>]</em>)</p></li>
+<li><p><strong>encoder</strong> (<a class="reference internal" href="#interact.retrieval.EncoderType" title="interact.retrieval.EncoderType"><em>EncoderType</em></a>)</p></li>
 <li><p><strong>train</strong> (<em>bool</em>)</p></li>
 </ul>
 </dd>
@@ -221,7 +235,7 @@
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>dataset</strong> (<em>Sequence</em><em>[</em><a class="reference internal" href="#interact.retrieval.Record" title="interact.retrieval.Record"><em>Record</em></a><em>]</em>)</p></li>
+<li><p><strong>dataset</strong> (<em>Sequence</em><em>[</em><em>T</em><em>]</em>)</p></li>
 <li><p><strong>train</strong> (<em>bool</em>)</p></li>
 </ul>
 </dd>
@@ -247,7 +261,7 @@
 </ul>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p>list[<a class="reference internal" href="#interact.retrieval.Record" title="interact.retrieval.Record"><em>Record</em></a>]</p>
+<dd class="field-even"><p>list[<em>T</em>]</p>
 </dd>
 </dl>
 </dd></dl>
