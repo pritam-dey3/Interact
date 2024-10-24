@@ -20,6 +20,7 @@ jobs:
             python3 -m pip install --user pipx
             python3 -m pipx ensurepath
             pipx install poetry
+            poetry lock
             poetry install --no-root --only dev
 
       - name: Build docs 📚
