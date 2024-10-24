@@ -3,21 +3,21 @@ authors = ["Pritam Dey <pritam.pritamdey.984@gmail.com>"]
 description = "Interact with LLMs"
 name = "interact"
 readme = "README.md"
-version = "0.6.1"
+version = "0.6.2"
 
 [build-system]
 build-backend = "poetry.core.masonry.api"
 requires = ["poetry-core>=1.0.0"]
 
 [tool.poetry.dependencies]
-numpy = "^1.26.4"
+numpy = "^2.0"
 openai = "^1.12"
 pillow = "^10.0"
 python = "^3.10"
 pydantic = "^2.8.0"
 
 # extras
-faiss-cpu = {version = "^1.8.0", optional = true}
+faiss-cpu = {version = "^1.9.0", optional = true}
 
 [tool.poetry.extras]
 faiss = ["faiss-cpu"]
