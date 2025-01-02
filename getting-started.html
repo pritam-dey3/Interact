@@ -165,7 +165,7 @@ window.addEventListener("load", () => mermaid.run());
 <h3>Define the Chain<a class="headerlink" href="#define-the-chain" title="Link to this heading"></a></h3>
 <p>We chain the <code class="docutils literal notranslate"><span class="pre">Handler</span></code> s using the <code class="docutils literal notranslate"><span class="pre">&gt;&gt;</span></code> operator to form a <code class="docutils literal notranslate"><span class="pre">HandlerChain</span></code>. Then we start the chain by calling it with the initial <code class="docutils literal notranslate"><span class="pre">Message</span></code> “socks”.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">name_and_tagline_generator</span> <span class="o">=</span> <span class="p">(</span>
-    <span class="n">company_name_prompt</span> <span class="o">&gt;&gt;</span> <span class="n">OpenAiLLM</span><span class="p">()</span> <span class="o">&gt;&gt;</span> <span class="n">company_tagline_prompt</span> <span class="o">&gt;&gt;</span> <span class="n">OpenAiLLM</span><span class="p">()</span>
+    <span class="n">company_name</span> <span class="o">&gt;&gt;</span> <span class="n">OpenAiLLM</span><span class="p">()</span> <span class="o">&gt;&gt;</span> <span class="n">company_tagline</span> <span class="o">&gt;&gt;</span> <span class="n">OpenAiLLM</span><span class="p">()</span>
 <span class="p">)</span>
 
 <span class="n">res</span> <span class="o">=</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">name_and_tagline_generator</span><span class="p">(</span><span class="s2">&quot;bike&quot;</span><span class="p">))</span>
