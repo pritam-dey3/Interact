@@ -1,4 +1,5 @@
 import json
+import os
 from typing import Callable, Iterable, TypeVar
 
 from openai import AsyncOpenAI
@@ -108,6 +109,23 @@ class OpenAiLLM(Handler):
             )
 
 
+class GeminiLLM(OpenAiLLM):
+    def __init__(
+        self,
+        role: str | None = None,
+        model: str = "gemini-1.5-flash",
+        structure: type[BaseModel] | None = None,
+        **openai_kwgs,
+    ) -> None:
+        openai_kwgs["base_url"] = (
+            "https://generativelanguage.googleapis.com/v1beta/openai/"
+        )
+        api_key = os.getenv("GOOGLE_API_KEY")
+        if "api_key" not in openai_kwgs and api_key:
+            openai_kwgs["api_key"] = api_key
+        super().__init__(role=role, model=model, structure=structure, **openai_kwgs)
+
+
 class AssignRole(Handler):
     """Assign a role to the last message sent to this Handler by the current HandlerChain."""
 
@@ -211,9 +229,9 @@ class BatchInputOpenAiLLM(Handler):
         # reply = ". ".join([str(ch.message.content) for ch in res.choices])
         # return Message(primary=reply, sender=self.role, openai_response=dict(res))
 
-        assert (
-            "custom_id" in msg.info
-        ), "unique id for the message is required in `info['custom_id']`"
+        assert "custom_id" in msg.info, (
+            "unique id for the message is required in `info['custom_id']`"
+        )
         line = {
             "custom_id": msg.info["custom_id"],
             "method": "POST",
