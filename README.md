@@ -59,7 +59,7 @@ async def company_tagline(msg: Message, chain: HandlerChain) -> str:
 
 def main():
     name_and_tagline_generator = (
-        company_name_prompt >> OpenAiLLM() >> company_tagline_prompt >> OpenAiLLM()
+        company_name >> OpenAiLLM() >> company_tagline >> OpenAiLLM()
     )
 
     res = asyncio.run(name_and_tagline_generator("bike"))

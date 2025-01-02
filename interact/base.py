@@ -144,7 +144,13 @@ class History(Sequence[Message]):
     def __init__(self, *messages: Message) -> None:
         self.messages = tuple(messages)
 
-    def __getitem__(self, index: int) -> Message:
+    @overload
+    def __getitem__(self, index: slice) -> History: ...
+    @overload
+    def __getitem__(self, index: int) -> Message: ...
+    def __getitem__(self, index):
+        if isinstance(index, slice):
+            return History(*self.messages[index])
         return self.messages[index]
 
     def __len__(self) -> int:

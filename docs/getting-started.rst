@@ -85,7 +85,7 @@ We chain the ``Handler`` s using the ``>>`` operator to form a ``HandlerChain``.
 .. code-block:: python
 
     name_and_tagline_generator = (
-        company_name_prompt >> OpenAiLLM() >> company_tagline_prompt >> OpenAiLLM()
+        company_name >> OpenAiLLM() >> company_tagline >> OpenAiLLM()
     )
 
     res = asyncio.run(name_and_tagline_generator("bike"))
