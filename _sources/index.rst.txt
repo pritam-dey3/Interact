@@ -31,7 +31,7 @@ Installation
 or, if you use faiss for similarity search
 
 .. code-block:: bash
-    
+
     pip install -U "interact[faiss] @ git+https://github.com/pritam-dey3/Interact.git"
 
 
@@ -42,7 +42,7 @@ Why Interact?
 
 Applications with Large Language Models can get complex very quickly. You need more customizability and control over the prompts and their execution to satisfactorily build an application.
 
-``Interact`` was created with simplicity and scalability in mind. The core concepts of ``Message`` s, ``Handler`` s, and ``Cascade`` s are simple to understand and give *You* the power to build complex applications with ease.
+``Interact`` was created with simplicity and scalability in mind. The core concepts of ``Message`` s, ``Handler`` s, and ``HandlerChain`` s are simple to understand and give *You* the power to build complex applications with ease.
 
 More popular alternatives like ``langchain`` get frustrating to use when you want to customize either the process or the prompts according to your needs. ``Interact`` gives you control while maintaining a very simple and intuitive API.
 
